@@ -9,14 +9,9 @@ if (!GROQ_API_KEY) {
   console.error('GROQ_API_KEY is not defined in environment variables');
 }
 
-// Generate a proposal using the GROQ API
-async function generateAiProposal(existingProposals: string[]): Promise<{ title: string; description: string }> {
+// Generate a revised proposal using the GROQ API
+async function generateRevisedProposal(originalDescription: string, feedback: string): Promise<string> {
   try {
-    // Create a prompt that includes existing proposals to avoid duplication
-    const existingProposalsText = existingProposals.length > 0 
-      ? `Here are some existing proposals:\n${existingProposals.join('\n')}\n\nPlease generate a different proposal.` 
-      : 'Please generate a new community proposal.';
-    
     const response = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
@@ -28,25 +23,32 @@ async function generateAiProposal(existingProposals: string[]): Promise<{ title:
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant that generates thoughtful community improvement proposals. 
-            Your proposals should be realistic, specific, and focused on improving community well-being, 
-            infrastructure, education, environment, or social cohesion.`
+            content: `You are an AI assistant that specializes in improving community proposals based on feedback.
+            You will be given an original proposal description and feedback on that proposal.
+            Your task is to create a revised version of the proposal that addresses the feedback while maintaining the original intent.
+            The revised proposal should be clear, concise, and well-structured.
+            
+            IMPORTANT:
+            1. Do not include any explanations, notes, or prefixes like "Here is the revised proposal:"
+            2. Just provide the revised proposal text directly
+            3. Format the proposal in a clean, professional way with proper paragraphs
+            4. Do not use quotation marks around the proposal`
           },
           {
             role: 'user',
-            content: `Please generate a new community proposal with a title and detailed description.
+            content: `Here is the original proposal description:
             
-            ${existingProposalsText}
+            "${originalDescription}"
             
-            Format your response exactly like this:
-            Title: [Your proposal title]
-            Description: [Your detailed proposal description of 2-3 sentences]
+            Here is the feedback on this proposal:
             
-            Make the proposal specific, actionable, and beneficial to the community.`
+            "${feedback}"
+            
+            Please provide a revised version of the proposal that addresses this feedback.`
           }
         ],
         temperature: 0.7,
-        max_tokens: 300
+        max_tokens: 800
       })
     });
 
@@ -55,40 +57,54 @@ async function generateAiProposal(existingProposals: string[]): Promise<{ title:
     }
 
     const data = await response.json();
-    const content = data.choices[0].message.content.trim();
+    let revisedProposal = data.choices[0].message.content.trim();
     
-    // Parse the response to extract title and description
-    const titleMatch = content.match(/Title:\s*(.*?)(?:\n|$)/);
-    const descriptionMatch = content.match(/Description:\s*([\s\S]*?)(?:\n\n|$)/);
+    // Remove common prefixes that might be included despite instructions
+    const prefixesToRemove = [
+      "Here is the revised proposal:",
+      "Revised proposal:",
+      "Here's the revised proposal:",
+      "The revised proposal:"
+    ];
     
-    const title = titleMatch ? titleMatch[1].trim() : 'AI-Generated Community Proposal';
-    const description = descriptionMatch 
-      ? descriptionMatch[1].trim() 
-      : 'A proposal to improve the community through collaborative efforts and innovative solutions.';
+    for (const prefix of prefixesToRemove) {
+      if (revisedProposal.startsWith(prefix)) {
+        revisedProposal = revisedProposal.substring(prefix.length).trim();
+      }
+    }
     
-    return { title, description };
+    // Remove quotation marks if they wrap the entire proposal
+    if (revisedProposal.startsWith('"') && revisedProposal.endsWith('"')) {
+      revisedProposal = revisedProposal.substring(1, revisedProposal.length - 1);
+    }
+    
+    return revisedProposal;
   } catch (error) {
-    console.error('Error generating AI proposal:', error);
-    // Fallback to a default proposal if the API call fails
-    return { 
-      title: 'Community Improvement Initiative', 
-      description: 'A proposal to enhance community spaces and services through collaborative planning and implementation of targeted improvements based on resident feedback.'
-    };
+    console.error('Error generating revised proposal:', error);
+    // Return a fallback message if the API call fails
+    return "Unable to generate a revised proposal at this time. Please try again later.";
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { existingProposals = [] } = body;
+    const { originalDescription, feedback } = body;
     
-    const proposal = await generateAiProposal(existingProposals);
+    if (!originalDescription || !feedback) {
+      return NextResponse.json(
+        { error: 'Missing required fields: originalDescription and feedback' },
+        { status: 400 }
+      );
+    }
     
-    return NextResponse.json({ proposal });
+    const revisedProposal = await generateRevisedProposal(originalDescription, feedback);
+    
+    return NextResponse.json({ revisedProposal });
   } catch (error) {
-    console.error('Error in AI proposal generation:', error);
+    console.error('Error generating revised proposal:', error);
     return NextResponse.json(
-      { error: 'Failed to generate AI proposal' },
+      { error: 'Failed to generate revised proposal' },
       { status: 500 }
     );
   }

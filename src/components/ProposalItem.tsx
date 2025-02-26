@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProposalChat from './ProposalChat';
 import ProposalAnalysis from './ProposalAnalysis';
 
@@ -37,13 +37,113 @@ export default function ProposalItem({
   const [isExpanded, setIsExpanded] = useState(false);
   const [newRevision, setNewRevision] = useState('');
   const [isAddingRevision, setIsAddingRevision] = useState(false);
+  const [showRevisions, setShowRevisions] = useState(true);
+  
+  // Revision history for undo/redo functionality
+  const [revisionHistory, setRevisionHistory] = useState<string[]>([]);
+  const [currentRevisionIndex, setCurrentRevisionIndex] = useState(-1);
+  const [isGeneratingRevision, setIsGeneratingRevision] = useState(false);
+
+  // Initialize revision history with all revisions when component mounts or revisions change
+  useEffect(() => {
+    if (proposal.revisions.length > 0 && revisionHistory.length === 0) {
+      // Initialize with all existing revisions
+      const descriptions = proposal.revisions.map(rev => rev.description);
+      setRevisionHistory(descriptions);
+      setCurrentRevisionIndex(descriptions.length - 1); // Start at the latest revision
+    }
+  }, [proposal.revisions, revisionHistory.length]);
 
   const handleAddRevision = () => {
     if (!newRevision.trim()) return;
     
+    // Add to revision history for undo/redo
+    // Remove any future revisions if we're not at the end of the history
+    const newHistory = currentRevisionIndex >= 0
+      ? revisionHistory.slice(0, currentRevisionIndex + 1)
+      : [];
+    
+    // Add the new revision to history
+    newHistory.push(newRevision);
+    setRevisionHistory(newHistory);
+    setCurrentRevisionIndex(newHistory.length - 1);
+    
+    // Update the actual proposal revision
     onAddRevision(proposal.id, newRevision);
     setNewRevision('');
     setIsAddingRevision(false);
+  };
+
+  // Generate a revision based on AI feedback
+  const handleAutoRevise = async () => {
+    if (!proposal.llmFeedback) return;
+    
+    setIsGeneratingRevision(true);
+    
+    try {
+      // Call an API to generate a revised proposal based on the feedback
+      const response = await fetch('/api/ai-proposal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          originalDescription: proposal.description,
+          feedback: proposal.llmFeedback
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate revision');
+      }
+      
+      const data = await response.json();
+      
+      // Update revision history - remove any future revisions
+      const newHistory = currentRevisionIndex >= 0
+        ? revisionHistory.slice(0, currentRevisionIndex + 1)
+        : [];
+      
+      // Add the new AI-generated revision to history
+      newHistory.push(data.revisedProposal);
+      setRevisionHistory(newHistory);
+      setCurrentRevisionIndex(newHistory.length - 1);
+      
+      // Update the actual proposal revision
+      onAddRevision(proposal.id, data.revisedProposal);
+    } catch (err) {
+      console.error('Error generating revision:', err);
+    } finally {
+      setIsGeneratingRevision(false);
+    }
+  };
+
+  // Undo revision - go to previous revision in history
+  const handleUndoRevision = () => {
+    if (currentRevisionIndex > 0 && revisionHistory.length > 1) {
+      const newIndex = currentRevisionIndex - 1;
+      setCurrentRevisionIndex(newIndex);
+      
+      // Update the displayed revision
+      const revisionText = revisionHistory[newIndex];
+      if (revisionText) {
+        onAddRevision(proposal.id, revisionText);
+      }
+    }
+  };
+
+  // Redo revision - go to next revision in history
+  const handleRedoRevision = () => {
+    if (currentRevisionIndex < revisionHistory.length - 1) {
+      const newIndex = currentRevisionIndex + 1;
+      setCurrentRevisionIndex(newIndex);
+      
+      // Update the displayed revision
+      const revisionText = revisionHistory[newIndex];
+      if (revisionText) {
+        onAddRevision(proposal.id, revisionText);
+      }
+    }
   };
 
   return (
@@ -168,32 +268,184 @@ export default function ProposalItem({
                 <h4 className="font-semibold psychedelic-text">AI Feedback</h4>
               </div>
               <p className="text-foreground/90">{proposal.llmFeedback}</p>
+              
+              {/* Revision control buttons */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={handleAutoRevise}
+                  disabled={isGeneratingRevision}
+                  className={`py-2 px-4 rounded-lg text-white font-medium transition-all shadow-sm flex items-center ${
+                    isGeneratingRevision
+                      ? 'bg-gray-400 cursor-not-allowed opacity-70'
+                      : 'bg-accent hover:bg-accent-hover hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 trippy-hover'
+                  }`}
+                >
+                  {isGeneratingRevision ? (
+                    <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin mr-2"></div>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 8V4H8"></path>
+                      <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+                      <path d="M2 14h2"></path>
+                      <path d="M20 14h2"></path>
+                    </svg>
+                  )}
+                  Auto-Revise
+                </button>
+                
+                <div className="flex rounded-lg overflow-hidden border border-border/60">
+                  <button
+                    onClick={handleUndoRevision}
+                    disabled={currentRevisionIndex <= 0 || revisionHistory.length <= 1}
+                    className={`py-2 px-3 flex items-center justify-center transition-colors ${
+                      currentRevisionIndex <= 0 || revisionHistory.length <= 1
+                        ? 'bg-background/50 text-foreground/30 cursor-not-allowed'
+                        : 'bg-background hover:bg-background/80 text-foreground/70 hover:text-foreground'
+                    }`}
+                    title="Undo revision"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 7v6h6"></path>
+                      <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+                    </svg>
+                  </button>
+                  
+                  <button
+                    onClick={handleRedoRevision}
+                    disabled={currentRevisionIndex >= revisionHistory.length - 1}
+                    className={`py-2 px-3 flex items-center justify-center transition-colors ${
+                      currentRevisionIndex >= revisionHistory.length - 1
+                        ? 'bg-background/50 text-foreground/30 cursor-not-allowed'
+                        : 'bg-background hover:bg-background/80 text-foreground/70 hover:text-foreground'
+                    }`}
+                    title="Redo revision"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 7v6h-6"></path>
+                      <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           )}
           
           {proposal.revisions.length > 0 && (
             <div>
-              <div className="flex items-center mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-foreground/70 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-                <h4 className="font-semibold text-foreground/90">Revisions</h4>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-foreground/70 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  <h4 className="font-semibold text-foreground/90">Revisions</h4>
+                  <span className="ml-2 text-xs text-foreground/50 bg-background/50 px-2 py-0.5 rounded-full">
+                    {proposal.revisions.length} {proposal.revisions.length === 1 ? 'revision' : 'revisions'}
+                  </span>
+                </div>
+                
+                {/* Toggle button for showing/hiding revisions */}
+                <button
+                  onClick={() => setShowRevisions(!showRevisions)}
+                  className="text-foreground/60 hover:text-foreground transition-colors"
+                >
+                  {showRevisions ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="18 15 12 9 6 15"></polyline>
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  )}
+                </button>
               </div>
-              <ul className="space-y-3">
-                {proposal.revisions.map(revision => (
-                  <li key={revision.id} className="bg-background p-4 rounded-lg border border-border/50">
-                    <p className="text-foreground/90">{revision.description}</p>
-                    <div className="flex items-center mt-2 text-xs text-foreground/50">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                      </svg>
-                      {revision.timestamp}
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              
+              {/* Revision history controls */}
+              <div className="flex justify-between items-center mb-3">
+                <div className="text-sm text-foreground/70">
+                  {currentRevisionIndex >= 0 && (
+                    <span>Viewing revision {currentRevisionIndex + 1} of {revisionHistory.length}</span>
+                  )}
+                </div>
+                
+                <div className="flex rounded-lg overflow-hidden border border-border/60">
+                  <button
+                    onClick={handleUndoRevision}
+                    disabled={currentRevisionIndex <= 0 || revisionHistory.length <= 1}
+                    className={`py-1 px-3 flex items-center justify-center transition-colors ${
+                      currentRevisionIndex <= 0 || revisionHistory.length <= 1
+                        ? 'bg-background/50 text-foreground/30 cursor-not-allowed'
+                        : 'bg-background hover:bg-background/80 text-foreground/70 hover:text-foreground'
+                    }`}
+                    title="Previous revision"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 7v6h6"></path>
+                      <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+                    </svg>
+                  </button>
+                  
+                  <button
+                    onClick={handleRedoRevision}
+                    disabled={currentRevisionIndex >= revisionHistory.length - 1}
+                    className={`py-1 px-3 flex items-center justify-center transition-colors ${
+                      currentRevisionIndex >= revisionHistory.length - 1
+                        ? 'bg-background/50 text-foreground/30 cursor-not-allowed'
+                        : 'bg-background hover:bg-background/80 text-foreground/70 hover:text-foreground'
+                    }`}
+                    title="Next revision"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 7v6h-6"></path>
+                      <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              {showRevisions ? (
+                <ul className="space-y-3">
+                  {proposal.revisions.map(revision => (
+                    <li key={revision.id} className="bg-background p-4 rounded-lg border border-border/50">
+                      <p className="text-foreground/90">{revision.description}</p>
+                      <div className="flex items-center mt-2 text-xs text-foreground/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        {revision.timestamp}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                // Show only the currently selected revision when revisions are hidden
+                <div className="bg-background p-4 rounded-lg border border-border/50">
+                  <p className="text-foreground/90">
+                    {currentRevisionIndex >= 0 && currentRevisionIndex < revisionHistory.length
+                      ? revisionHistory[currentRevisionIndex]
+                      : proposal.revisions[proposal.revisions.length - 1].description}
+                  </p>
+                  <div className="flex items-center mt-2 text-xs text-foreground/50">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    {currentRevisionIndex === revisionHistory.length - 1 ? (
+                      <>
+                        {proposal.revisions[proposal.revisions.length - 1].timestamp}
+                        <span className="ml-2 text-accent">Latest revision</span>
+                      </>
+                    ) : (
+                      <>
+                        {proposal.revisions[Math.min(currentRevisionIndex, proposal.revisions.length - 1)].timestamp}
+                        <span className="ml-2 text-warning">Revision {currentRevisionIndex + 1} of {revisionHistory.length}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           
@@ -253,7 +505,10 @@ export default function ProposalItem({
             )}
           </div>
           {/* Analysis for this proposal */}
-          <ProposalAnalysis proposal={proposal} />
+          <ProposalAnalysis
+            proposal={proposal}
+            onAddRevision={onAddRevision}
+          />
           
           {/* Chat for this proposal - renamed to avoid confusion */}
           <div className="mt-4 border-t border-border/40 pt-4">

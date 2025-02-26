@@ -5,6 +5,7 @@ import { Proposal } from './ProposalItem';
 
 interface ProposalAnalysisProps {
   proposal: Proposal;
+  onAddRevision?: (id: string, revision: string) => void;
 }
 
 type AnalysisResult = {
@@ -37,11 +38,12 @@ type AnalysisResult = {
   }[];
 };
 
-export default function ProposalAnalysis({ proposal }: ProposalAnalysisProps) {
+export default function ProposalAnalysis({ proposal, onAddRevision }: ProposalAnalysisProps) {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isGeneratingRevision, setIsGeneratingRevision] = useState(false);
 
   const handleRequestAnalysis = async () => {
     setIsLoading(true);
@@ -71,6 +73,40 @@ export default function ProposalAnalysis({ proposal }: ProposalAnalysisProps) {
       setError('Failed to generate analysis. Please try again later.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Generate a revision based on AI recommendations
+  const handleAutoRevise = async () => {
+    if (!analysis || !onAddRevision) return;
+    
+    setIsGeneratingRevision(true);
+    
+    try {
+      // Call the AI proposal API endpoint
+      const response = await fetch('/api/ai-proposal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          originalDescription: proposal.description,
+          feedback: analysis.recommendations
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate revision');
+      }
+      
+      const data = await response.json();
+      
+      // Add the revision
+      onAddRevision(proposal.id, data.revisedProposal);
+    } catch (err) {
+      console.error('Error generating revision:', err);
+    } finally {
+      setIsGeneratingRevision(false);
     }
   };
 
@@ -250,6 +286,31 @@ export default function ProposalAnalysis({ proposal }: ProposalAnalysisProps) {
                   Recommendations
                 </h5>
                 <p className="text-sm text-foreground/80">{analysis.recommendations}</p>
+                
+                {/* Auto-Revise Button */}
+                {onAddRevision && (
+                  <div className="mt-4">
+                    <button
+                      onClick={handleAutoRevise}
+                      disabled={isGeneratingRevision}
+                      className={`py-2 px-4 rounded-lg text-white font-medium transition-all shadow-sm flex items-center ${
+                        isGeneratingRevision
+                          ? 'bg-gray-400 cursor-not-allowed opacity-70'
+                          : 'bg-accent hover:bg-accent-hover hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 trippy-hover'
+                      }`}
+                    >
+                      {isGeneratingRevision ? (
+                        <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin mr-2"></div>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                      )}
+                      Auto-Revise Based on Recommendations
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}

@@ -16,7 +16,7 @@ This document outlines the ethical principles, governance structures, and safegu
 
 ### 2. Fairness and Non-discrimination
 
-**Principle:** The system must be designed to treat all community members fairly and avoid perpetuating or amplifying biases.
+**Principle:** The system must be designed to treat all community members fairly reducing biases whenever possible
 
 **Implementation:**
 - Representative training data for all AI components

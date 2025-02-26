@@ -1,3 +1,6 @@
+/* Import proposal styling */
+@import '../styles/proposal.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

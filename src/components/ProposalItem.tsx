@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import ProposalChat from './ProposalChat';
 import ProposalAnalysis from './ProposalAnalysis';
+import { formatMarkdownText } from '../utils/formatText';
 
 export type Proposal = {
   id: string;
@@ -195,7 +196,10 @@ export default function ProposalItem({
       </div>
       
       <div className="bg-background/50 rounded-lg p-3 mb-4 border border-border/40">
-        <p className="text-foreground/90">{proposal.description}</p>
+        <div
+          className="text-foreground/90 proposal-content"
+          dangerouslySetInnerHTML={{ __html: formatMarkdownText(proposal.description) }}
+        />
       </div>
       <div className="flex flex-wrap gap-2 mb-4">
         <button
@@ -408,7 +412,10 @@ export default function ProposalItem({
                 <ul className="space-y-3">
                   {proposal.revisions.map(revision => (
                     <li key={revision.id} className="bg-background p-4 rounded-lg border border-border/50">
-                      <p className="text-foreground/90">{revision.description}</p>
+                      <div
+                        className="text-foreground/90 proposal-content"
+                        dangerouslySetInnerHTML={{ __html: formatMarkdownText(revision.description) }}
+                      />
                       <div className="flex items-center mt-2 text-xs text-foreground/50">
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="10"></circle>
@@ -422,11 +429,16 @@ export default function ProposalItem({
               ) : (
                 // Show only the currently selected revision when revisions are hidden
                 <div className="bg-background p-4 rounded-lg border border-border/50">
-                  <p className="text-foreground/90">
-                    {currentRevisionIndex >= 0 && currentRevisionIndex < revisionHistory.length
-                      ? revisionHistory[currentRevisionIndex]
-                      : proposal.revisions[proposal.revisions.length - 1].description}
-                  </p>
+                  <div
+                    className="text-foreground/90 proposal-content"
+                    dangerouslySetInnerHTML={{
+                      __html: formatMarkdownText(
+                        currentRevisionIndex >= 0 && currentRevisionIndex < revisionHistory.length
+                          ? revisionHistory[currentRevisionIndex]
+                          : proposal.revisions[proposal.revisions.length - 1].description
+                      )
+                    }}
+                  />
                   <div className="flex items-center mt-2 text-xs text-foreground/50">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10"></circle>

@@ -1,0 +1,44 @@
+/* Proposal content styling */
+.proposal-content {
+  /* General styling */
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Paragraphs */
+.proposal-content p {
+  margin-bottom: 1rem;
+}
+
+.proposal-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Lists */
+.proposal-content ul,
+.proposal-content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.proposal-content ul {
+  list-style-type: disc;
+}
+
+.proposal-content ol {
+  list-style-type: decimal;
+}
+
+.proposal-content li {
+  margin-bottom: 0.5rem;
+}
+
+.proposal-content li:last-child {
+  margin-bottom: 0;
+}
+
+/* Bold text / headings */
+.proposal-content strong {
+  font-weight: 600;
+  color: var(--color-primary, #4a6cf7);
+}

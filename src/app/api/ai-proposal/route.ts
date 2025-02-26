@@ -26,13 +26,21 @@ async function generateRevisedProposal(originalDescription: string, feedback: st
             content: `You are an AI assistant that specializes in improving community proposals based on feedback.
             You will be given an original proposal description and feedback on that proposal.
             Your task is to create a revised version of the proposal that addresses the feedback while maintaining the original intent.
-            The revised proposal should be clear, concise, and well-structured.
             
-            IMPORTANT:
+            IMPORTANT FORMATTING REQUIREMENTS:
             1. Do not include any explanations, notes, or prefixes like "Here is the revised proposal:"
             2. Just provide the revised proposal text directly
-            3. Format the proposal in a clean, professional way with proper paragraphs
-            4. Do not use quotation marks around the proposal`
+            3. Format the proposal in a clean, professional way with:
+               - Proper paragraphs with line breaks between them
+               - Bullet points for lists of items or steps
+               - Numbered lists for sequential steps if appropriate
+               - Section headings in bold if the proposal is complex
+            4. Use Markdown formatting:
+               - Use blank lines between paragraphs
+               - Use "- " or "* " for bullet points
+               - Use "1. ", "2. ", etc. for numbered lists
+               - Use "**text**" for bold text (section headings)
+            5. Do not use quotation marks around the proposal`
           },
           {
             role: 'user',

@@ -1,0 +1,552 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme variables */
+:root {
+  /* Default radius for all themes */
+  --radius: 0.5rem;
+}
+
+/* Psychedelic theme variables - toned down */
+.theme-psychedelic {
+  /* Softer, less vibrant colors */
+  --background: #1f1f3d; /* Muted dark blue */
+  --foreground: #e6e6f0; /* Slightly softer text */
+  --primary: #9966cc; /* Muted purple */
+  --primary-hover: #aa77dd; /* Slightly brighter purple */
+  --secondary: #4db6ac; /* Teal */
+  --secondary-hover: #5ec7bd; /* Slightly brighter teal */
+  --accent: #f0a04b; /* Muted amber */
+  --accent-hover: #f5b46a; /* Slightly brighter amber */
+  --danger: #e57373; /* Muted red */
+  --danger-hover: #ef9a9a; /* Slightly brighter red */
+  --card: rgba(40, 40, 70, 0.7); /* Translucent dark blue */
+  --card-foreground: #e6e6f0; /* Slightly softer text */
+  --border: #6c5ce7; /* Muted purple */
+  --input: rgba(60, 60, 90, 0.6); /* Translucent dark blue */
+  --ring: rgba(153, 102, 204, 0.5); /* Muted purple glow */
+  
+  /* RGB values for effects - toned down */
+  --primary-rgb: 153, 102, 204;
+  --secondary-rgb: 77, 182, 172;
+  --accent-rgb: 240, 160, 75;
+  --purple-rgb: 108, 92, 231;
+  --cyan-rgb: 86, 204, 242;
+  
+  /* Simplified effect variables */
+  --rainbow-border: linear-gradient(
+    to right,
+    #6c5ce7, #4db6ac, #f0a04b
+  );
+  --psychedelic-glow: 0 0 10px rgba(153, 102, 204, 0.4);
+  --trippy-gradient: linear-gradient(
+    45deg,
+    rgba(153, 102, 204, 0.5),
+    rgba(108, 92, 231, 0.5),
+    rgba(86, 204, 242, 0.5)
+  );
+}
+
+/* Light theme variables - more subtle */
+.theme-light {
+  /* Clean, professional colors */
+  --background: #f8fafc; /* Light gray background */
+  --foreground: #1e293b; /* Dark text */
+  --primary: #4b7bec; /* Softer blue */
+  --primary-hover: #3867d6; /* Darker blue */
+  --secondary: #26de81; /* Softer green */
+  --secondary-hover: #20bf6b; /* Darker green */
+  --accent: #fa8231; /* Softer orange */
+  --accent-hover: #fd9644; /* Lighter orange */
+  --danger: #fc5c65; /* Softer red */
+  --danger-hover: #eb3b5a; /* Darker red */
+  --card: rgba(255, 255, 255, 0.95); /* White with minimal transparency */
+  --card-foreground: #1e293b; /* Dark text */
+  --border: #dfe4ea; /* Lighter gray border */
+  --input: rgba(241, 245, 249, 0.95); /* Light input background */
+  --ring: rgba(75, 123, 236, 0.4); /* Softer blue focus ring */
+  
+  /* RGB values for effects - more subtle */
+  --primary-rgb: 75, 123, 236;
+  --secondary-rgb: 38, 222, 129;
+  --accent-rgb: 250, 130, 49;
+  --purple-rgb: 126, 87, 194;
+  --cyan-rgb: 72, 219, 251;
+  
+  /* Light theme effect variables - minimal effects */
+  --rainbow-border: linear-gradient(
+    to right,
+    #4b7bec, #a55eea, #fd9644
+  );
+  --psychedelic-glow: 0 0 5px rgba(75, 123, 236, 0.2);
+  --trippy-gradient: linear-gradient(
+    45deg,
+    rgba(75, 123, 236, 0.3),
+    rgba(126, 87, 194, 0.3)
+  );
+}
+
+/* Dark theme variables - more subtle */
+.theme-dark {
+  /* Dark mode colors - refined */
+  --background: #1a1b26; /* Dark blue-gray background */
+  --foreground: #d8dee9; /* Soft light text */
+  --primary: #5e81ac; /* Muted blue */
+  --primary-hover: #81a1c1; /* Lighter muted blue */
+  --secondary: #8fbcbb; /* Muted teal */
+  --secondary-hover: #88c0d0; /* Lighter muted teal */
+  --accent: #d08770; /* Muted orange */
+  --accent-hover: #ebcb8b; /* Muted yellow */
+  --danger: #bf616a; /* Muted red */
+  --danger-hover: #d57780; /* Lighter muted red */
+  --card: rgba(26, 27, 38, 0.9); /* Dark blue-gray with minimal transparency */
+  --card-foreground: #d8dee9; /* Soft light text */
+  --border: #3b4252; /* Dark gray border */
+  --input: rgba(46, 52, 64, 0.9); /* Dark input background */
+  --ring: rgba(94, 129, 172, 0.4); /* Muted blue focus ring */
+  
+  /* RGB values for effects - more subtle */
+  --primary-rgb: 94, 129, 172;
+  --secondary-rgb: 143, 188, 187;
+  --accent-rgb: 208, 135, 112;
+  --purple-rgb: 180, 142, 173;
+  --cyan-rgb: 136, 192, 208;
+  
+  /* Dark theme effect variables - minimal effects */
+  --rainbow-border: linear-gradient(
+    to right,
+    #5e81ac, #b48ead, #d08770
+  );
+  --psychedelic-glow: 0 0 5px rgba(94, 129, 172, 0.2);
+  --trippy-gradient: linear-gradient(
+    45deg,
+    rgba(94, 129, 172, 0.3),
+    rgba(180, 142, 173, 0.3)
+  );
+}
+
+/* Default to light theme instead of psychedelic */
+:root, body {
+  @apply theme-light;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Base body styles for both themes */
+body {
+  background-attachment: fixed;
+  position: relative;
+  overflow-x: hidden;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Psychedelic theme body styles - toned down */
+body.theme-psychedelic {
+  background: var(--background);
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%239C92AC' fill-opacity='0.03' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E"),
+    radial-gradient(at 100% 0%, rgba(var(--primary-rgb), 0.2) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(var(--purple-rgb), 0.2) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(var(--cyan-rgb), 0.1) 0px, transparent 70%);
+  /* Removed animation for a more subtle look */
+}
+
+/* Light theme body styles - no animations */
+body.theme-light {
+  background: var(--background);
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%239C92AC' fill-opacity='0.03' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E"),
+    radial-gradient(at 100% 0%, rgba(var(--primary-rgb), 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(var(--purple-rgb), 0.1) 0px, transparent 50%);
+  /* No animation */
+}
+
+/* Dark theme body styles - no animations */
+body.theme-dark {
+  background: var(--background);
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23334155' fill-opacity='0.05' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E"),
+    radial-gradient(at 100% 0%, rgba(var(--primary-rgb), 0.2) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(var(--purple-rgb), 0.2) 0px, transparent 50%);
+  /* No animation */
+}
+
+/* Psychedelic background pulse animation */
+@keyframes backgroundPulse {
+  0% {
+    background-size: 100% 100%, 150% 150%, 150% 150%, 200% 200%;
+    background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+  }
+  50% {
+    background-size: 120% 120%, 200% 200%, 200% 200%, 250% 250%;
+    background-position: 10% 10%, 20% 20%, 30% 30%, 40% 40%;
+  }
+  100% {
+    background-size: 100% 100%, 150% 150%, 150% 150%, 200% 200%;
+    background-position: 5% 5%, 15% 15%, 25% 25%, 35% 35%;
+  }
+}
+
+/* Floating orbs effect - Psychedelic theme - toned down */
+body.theme-psychedelic::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(153, 102, 204, 0.05) 0%, rgba(153, 102, 204, 0) 5%),
+    radial-gradient(circle at 50% 80%, rgba(86, 204, 242, 0.05) 0%, rgba(86, 204, 242, 0) 5%),
+    radial-gradient(circle at 80% 10%, rgba(240, 160, 75, 0.05) 0%, rgba(240, 160, 75, 0) 5%);
+  /* Removed animation for a more subtle look */
+}
+
+/* Floating orbs effect - Light theme */
+body.theme-light::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0) 5%),
+    radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0) 5%),
+    radial-gradient(circle at 80% 10%, rgba(236, 72, 153, 0.05) 0%, rgba(236, 72, 153, 0) 5%);
+  /* No animation */
+}
+
+/* Floating orbs effect - Dark theme */
+body.theme-dark::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0) 5%),
+    radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0) 5%),
+    radial-gradient(circle at 80% 10%, rgba(236, 72, 153, 0.05) 0%, rgba(236, 72, 153, 0) 5%);
+  /* No animation */
+}
+
+@keyframes floatingOrbs {
+  0% {
+    background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+    opacity: 0.5;
+  }
+  50% {
+    background-position: 30% 50%, 50% 30%, 70% 60%, 40% 80%, 60% 30%;
+    opacity: 1;
+  }
+  100% {
+    background-position: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+    opacity: 0.5;
+  }
+}
+
+/* Color shifting overlay - Psychedelic theme - toned down */
+body.theme-psychedelic::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg,
+    rgba(153, 102, 204, 0.02),
+    rgba(86, 204, 242, 0.02),
+    rgba(240, 160, 75, 0.02));
+  mix-blend-mode: color;
+  pointer-events: none;
+  /* Removed animation for a more subtle look */
+}
+
+/* Subtle overlay - Light theme */
+body.theme-light::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg,
+    rgba(59, 130, 246, 0.02),
+    rgba(139, 92, 246, 0.02),
+    rgba(236, 72, 153, 0.02));
+  mix-blend-mode: color;
+  pointer-events: none;
+  /* No animation */
+}
+
+/* Subtle overlay - Dark theme */
+body.theme-dark::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg,
+    rgba(59, 130, 246, 0.02),
+    rgba(139, 92, 246, 0.02),
+    rgba(236, 72, 153, 0.02));
+  mix-blend-mode: color;
+  pointer-events: none;
+  /* No animation */
+}
+
+@keyframes colorShift {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0.1;
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 0.2;
+  }
+  100% {
+    background-position: 0% 0%;
+    opacity: 0.1;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: animateIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  @keyframes animateIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.95);
+      /* Removed hue-rotate filter */
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      /* Removed hue-rotate filter */
+    }
+  }
+  
+  /* Text effect - theme appropriate colors instead of rainbow */
+  .psychedelic-text {
+    /* No longer using rainbow gradient */
+    color: var(--primary);
+    font-weight: 600;
+    /* Theme-specific styles will be applied via theme classes */
+  }
+  
+  /* Theme-specific text styling */
+  .theme-light .psychedelic-text {
+    color: var(--primary);
+  }
+  
+  .theme-dark .psychedelic-text {
+    color: var(--primary);
+  }
+  
+  .theme-psychedelic .psychedelic-text {
+    /* Keep some color gradient for psychedelic theme only */
+    background-image: linear-gradient(90deg, var(--primary), var(--accent));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+  
+  @keyframes psychedelicText {
+    /* Animation disabled - no hue rotation */
+    0%, 100% {
+      filter: hue-rotate(0deg);
+    }
+  }
+  
+  /* Themed border effect - replacing rainbow with theme-appropriate borders */
+  .rainbow-border {
+    position: relative;
+    z-index: 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.2);
+  }
+  
+  /* Only psychedelic theme keeps a gradient border */
+  .theme-psychedelic .rainbow-border {
+    position: relative;
+    z-index: 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: none; /* Remove regular border for gradient */
+  }
+  
+  .theme-psychedelic .rainbow-border::before {
+    content: '';
+    position: absolute;
+    z-index: -2;
+    left: -50%;
+    top: -50%;
+    width: 200%;
+    height: 200%;
+    background-image: var(--rainbow-border);
+  }
+  
+  .theme-psychedelic .rainbow-border::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: 2px;
+    top: 2px;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    background: var(--card);
+    border-radius: calc(var(--radius) - 2px);
+  }
+  
+  @keyframes rainbowRotate {
+    /* Animation disabled - no rotation */
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+  }
+  
+  /* Pulsating glow effect - disabled */
+  .pulsate-glow {
+    /* Animation removed */
+    box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.3),
+                0 0 10px rgba(var(--primary-rgb), 0.1);
+  }
+  
+  @keyframes pulsateGlow {
+    /* Animation disabled */
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.3),
+                  0 0 10px rgba(var(--primary-rgb), 0.1);
+    }
+  }
+  
+  /* Trippy hover effect - toned down */
+  .trippy-hover {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .trippy-hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0));
+    transition: all 0.5s ease;
+  }
+  
+  .trippy-hover:hover {
+    transform: translateY(-2px);
+    /* Removed filter effects */
+  }
+  
+  .trippy-hover:hover::before {
+    /* Removed animation */
+  }
+  
+  /* Distortion effect on hover - toned down */
+  .distort-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .distort-hover:hover {
+    transform: translateY(-2px);
+    /* Removed perspective and filter effects */
+  }
+}
+
+/* Custom scrollbar for the psychedelic theme */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(var(--purple-rgb), 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--primary-rgb), 0.8),
+    rgba(var(--purple-rgb), 0.8)
+  );
+  border-radius: var(--radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--primary-rgb), 1),
+    rgba(var(--purple-rgb), 1)
+  );
+}
+
+/* Enhanced card styling */
+.bg-card {
+  background-color: var(--card);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(var(--purple-rgb), 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 0 15px rgba(var(--primary-rgb), 0.2);
+  transition: all 0.3s ease;
+}
+
+.bg-card:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(var(--primary-rgb), 0.3);
+  transform: translateY(-2px);
+}
+
+/* Button enhancements - toned down */
+button {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent);
+  transition: all 0.5s ease;
+}
+
+button:hover::after {
+  /* Animation still enabled but less noticeable with reduced opacity */
+  left: 100%;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  /* Removed hue-rotate, reduced brightness effect */
+  filter: brightness(1.05);
+}

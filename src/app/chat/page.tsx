@@ -28,7 +28,7 @@ export default function ChatPage() {
           Community Discussion
         </h1>
         <p className="text-foreground/70 max-w-md mx-auto text-lg">
-          Engage with AI to discuss proposals, vote on ideas, and get insights
+          Vote on ideas. Get insights. Resolve disputes.
         </p>
       </header>
       
@@ -42,7 +42,7 @@ export default function ChatPage() {
                 : 'hover:bg-background/80'
             }`}
           >
-            Proposals & Voting
+            Proposals
           </button>
           <button
             onClick={() => setActiveTab('chat')}
@@ -52,7 +52,7 @@ export default function ChatPage() {
                 : 'hover:bg-background/80'
             }`}
           >
-            AI Chat
+            Mediation
           </button>
         </div>
       </div>
@@ -68,7 +68,6 @@ export default function ChatPage() {
       <footer className="text-center text-sm text-foreground/60 py-6 border-t border-border/40 mt-8">
         <div className="flex items-center justify-center gap-2">
           <span>Powered by</span>
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">MEDIATOR AI</span>
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">GROQ LLM</span>
         </div>
       </footer>

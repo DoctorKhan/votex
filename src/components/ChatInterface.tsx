@@ -210,7 +210,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
           <h3 className="text-lg font-semibold flex items-center">
-            <span className="bg-accent/10 text-accent text-xs px-2 py-0.5 rounded-full mr-2">MEDIATOR AI</span>
+            <span className="bg-accent/10 text-accent text-xs px-2 py-0.5 rounded-full mr-2">Mediation</span>
             Community Discussion Assistant
           </h3>
         </div>

@@ -175,7 +175,7 @@ export default function ProposalAnalysis({
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
           </svg>
-          <h4 className="font-semibold">ANALYST AI</h4>
+          <h4 className="font-semibold">Analysis</h4>
         </div>
         <button 
           onClick={() => setIsExpanded(!isExpanded)}

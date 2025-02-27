@@ -246,7 +246,8 @@ export default function ProposalList() {
                 llmFeedback: proposal.llmFeedback,
                 aiCreated: proposal.aiCreated,
                 aiVoted: proposal.aiVoted,
-                revisions: proposal.revisions || []
+                revisions: proposal.revisions || [],
+                analysis: proposal.analysis
               }}
               onVote={handleVote}
               onRequestLlmFeedback={handleRequestLlmFeedback}

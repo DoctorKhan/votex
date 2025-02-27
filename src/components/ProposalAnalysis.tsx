@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Proposal } from './ProposalItem';
+import { initDB } from '../lib/db';
+import { ProposalService } from '../lib/proposalService';
 
 interface ProposalAnalysisProps {
   proposal: Proposal;
@@ -39,11 +41,34 @@ type AnalysisResult = {
 };
 
 export default function ProposalAnalysis({ proposal, onAddRevision }: ProposalAnalysisProps) {
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  // Initialize analysis with the proposal's analysis if it exists
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(
+    proposal.analysis as AnalysisResult | null
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Automatically expand the analysis section if an analysis already exists
+  const [isExpanded, setIsExpanded] = useState(!!proposal.analysis);
   const [isGeneratingRevision, setIsGeneratingRevision] = useState(false);
+  const [proposalService, setProposalService] = useState<ProposalService | null>(null);
+
+  // Initialize the database
+  useEffect(() => {
+    const init = async () => {
+      try {
+        await initDB();
+        
+        // Create a dummy IDBDatabase since we don't have direct access to the db instance
+        const dummyDb = {} as IDBDatabase;
+        const service = new ProposalService(dummyDb);
+        setProposalService(service);
+      } catch (err) {
+        console.error('Error initializing:', err);
+      }
+    };
+    
+    init();
+  }, []);
 
   const handleRequestAnalysis = async () => {
     setIsLoading(true);
@@ -67,7 +92,27 @@ export default function ProposalAnalysis({ proposal, onAddRevision }: ProposalAn
       }
       
       const data = await response.json();
-      setAnalysis(data.analysis);
+      const analysisResult = data.analysis;
+      setAnalysis(analysisResult);
+      
+      // Save the analysis to the database
+      if (proposalService) {
+        try {
+          const fullProposal = await proposalService.getProposal(proposal.id);
+          if (fullProposal) {
+            fullProposal.analysis = analysisResult;
+            await proposalService.updateProposal(proposal.id, fullProposal);
+            console.log('Analysis saved successfully for proposal:', proposal.id);
+          } else {
+            console.error('Could not find proposal with ID:', proposal.id);
+          }
+        } catch (saveErr) {
+          console.error('Error saving analysis to database:', saveErr);
+          // We still show the analysis even if saving fails
+        }
+      } else {
+        console.error('ProposalService not initialized');
+      }
     } catch (err) {
       console.error('Error generating analysis:', err);
       setError('Failed to generate analysis. Please try again later.');

@@ -17,6 +17,35 @@ export interface ProposalEntity {
     description: string;
     timestamp: string;
   }>;
+  analysis?: {
+    feasibility: number;
+    impact: number;
+    cost: number;
+    timeframe: number;
+    risks: string[];
+    benefits: string[];
+    recommendations: string;
+    stakeholderImpact?: {
+      group: string;
+      impact: number;
+      description: string;
+    }[];
+    resourceRequirements?: {
+      resource: string;
+      amount: string;
+      priority: 'low' | 'medium' | 'high';
+    }[];
+    securityImplications?: {
+      concern: string;
+      severity: 'low' | 'medium' | 'high';
+      mitigation: string;
+    }[];
+    implementationSteps?: {
+      step: string;
+      timeframe: string;
+      dependencies: string[];
+    }[];
+  };
 }
 
 /**

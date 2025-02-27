@@ -67,7 +67,7 @@ export default function ProposalItem({
   const [isExpanded, setIsExpanded] = useState(false);
   const [newRevision, setNewRevision] = useState('');
   const [isAddingRevision, setIsAddingRevision] = useState(false);
-  const [showRevisions, setShowRevisions] = useState(true);
+  const [showRevisions, setShowRevisions] = useState(false);
   
   // Revision history for undo/redo functionality
   const [revisionHistory, setRevisionHistory] = useState<string[]>([]);

@@ -35,7 +35,7 @@ export default function ChatPage() {
       <footer className="text-center text-sm text-foreground/60 py-6 border-t border-border/40 mt-8">
         <div className="flex items-center justify-center gap-2">
           <span>Powered by</span>
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">GROQ LLM</span>
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">Community</span>
         </div>
       </footer>
     </div>

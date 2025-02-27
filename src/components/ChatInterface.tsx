@@ -16,7 +16,7 @@ interface ChatInterfaceProps {
   }>;
 }
 
-// Define discussion topics for the MEDIATOR AI
+// Define discussion topics for the community assistant
 const discussionTopics = [
   {
     id: 'initiative_feedback',
@@ -67,7 +67,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
       setMessages([
         {
           role: 'assistant',
-          content: 'Hello! I\'m the MEDIATOR AI assistant. I can help facilitate discussions about initiatives, community engagement, and decision-making processes. How can I assist you today?'
+          content: 'Hello! I\'m your community discussion assistant. I can help facilitate conversations about initiatives, community engagement, and decision-making processes. How can I assist you today?'
         }
       ]);
       
@@ -176,7 +176,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to get AI response');
+        throw new Error('Failed to get response');
       }
       
       const data = await response.json();

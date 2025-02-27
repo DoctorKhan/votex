@@ -31,7 +31,7 @@ export default function Navigation() {
             <path d="m19.07 4.93-1.41 1.41"></path>
             <circle cx="12" cy="12" r="4"></circle>
           </svg>
-          <span className="font-medium">AI Voting App</span>
+          <span className="font-medium">Votex</span>
         </Link>
       </div>
       

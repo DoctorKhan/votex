@@ -1,76 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Proposal } from './ProposalItem';
+import { useState, useEffect, useCallback } from 'react';
+import { Proposal, Analysis, Revision } from './ProposalItem';
 import { initDB } from '../lib/db';
 import { ProposalService } from '../lib/proposalService';
 
 interface ProposalAnalysisProps {
   proposal: Proposal;
+  currentRevision: Revision | null;
   onAddRevision?: (id: string, revision: string) => void;
+  onAnalysisGenerated?: (analysis: Analysis) => void;
 }
 
-type AnalysisResult = {
-  feasibility: number;
-  impact: number;
-  cost: number;
-  timeframe: number;
-  risks: string[];
-  benefits: string[];
-  recommendations: string;
-  stakeholderImpact: {
-    group: string;
-    impact: number;
-    description: string;
-  }[];
-  resourceRequirements: {
-    resource: string;
-    amount: string;
-    priority: 'low' | 'medium' | 'high';
-  }[];
-  securityImplications: {
-    concern: string;
-    severity: 'low' | 'medium' | 'high';
-    mitigation: string;
-  }[];
-  implementationSteps: {
-    step: string;
-    timeframe: string;
-    dependencies: string[];
-  }[];
-};
-
-export default function ProposalAnalysis({ proposal, onAddRevision }: ProposalAnalysisProps) {
-  // Initialize analysis with the proposal's analysis if it exists
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(
-    proposal.analysis as AnalysisResult | null
+export default function ProposalAnalysis({
+  proposal,
+  currentRevision,
+  onAddRevision,
+  onAnalysisGenerated
+}: ProposalAnalysisProps) {
+  // Initialize analysis with the current revision's analysis if it exists
+  const [analysis, setAnalysis] = useState<Analysis | null>(
+    currentRevision?.analysis || null
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Automatically expand the analysis section if an analysis already exists
-  const [isExpanded, setIsExpanded] = useState(!!proposal.analysis);
+  const [isExpanded, setIsExpanded] = useState(!!currentRevision?.analysis);
   const [isGeneratingRevision, setIsGeneratingRevision] = useState(false);
   const [proposalService, setProposalService] = useState<ProposalService | null>(null);
 
-  // Initialize the database
-  useEffect(() => {
-    const init = async () => {
-      try {
-        await initDB();
-        
-        // Create a dummy IDBDatabase since we don't have direct access to the db instance
-        const dummyDb = {} as IDBDatabase;
-        const service = new ProposalService(dummyDb);
-        setProposalService(service);
-      } catch (err) {
-        console.error('Error initializing:', err);
-      }
-    };
-    
-    init();
-  }, []);
-
-  const handleRequestAnalysis = async () => {
+  // Request analysis from the API
+  const handleRequestAnalysis = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
@@ -92,17 +52,38 @@ export default function ProposalAnalysis({ proposal, onAddRevision }: ProposalAn
       }
       
       const data = await response.json();
-      const analysisResult = data.analysis;
+      const analysisResult = data.analysis as Analysis;
       setAnalysis(analysisResult);
+      
+      // Notify parent component about the new analysis
+      if (onAnalysisGenerated) {
+        onAnalysisGenerated(analysisResult);
+      }
       
       // Save the analysis to the database
       if (proposalService) {
         try {
           const fullProposal = await proposalService.getProposal(proposal.id);
           if (fullProposal) {
-            fullProposal.analysis = analysisResult;
-            await proposalService.updateProposal(proposal.id, fullProposal);
-            console.log('Analysis saved successfully for proposal:', proposal.id);
+            // Make sure revisions array exists
+            if (fullProposal.revisions) {
+              // Find the current revision and update its analysis
+              const currentRevisionIndex = fullProposal.revisions.findIndex(
+                rev => currentRevision && rev.id === currentRevision.id
+              );
+              
+              if (currentRevisionIndex >= 0) {
+                // Use type assertion to work around the TypeScript error
+                // since the Proposal type in the database service might not be updated yet
+                (fullProposal.revisions[currentRevisionIndex] as Revision).analysis = analysisResult;
+                await proposalService.updateProposal(proposal.id, fullProposal);
+                console.log('Analysis saved successfully for revision:', currentRevision?.id);
+              } else {
+                console.error('Could not find revision in proposal');
+              }
+            } else {
+              console.error('Proposal has no revisions array');
+            }
           } else {
             console.error('Could not find proposal with ID:', proposal.id);
           }
@@ -119,10 +100,41 @@ export default function ProposalAnalysis({ proposal, onAddRevision }: ProposalAn
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [proposal, currentRevision, onAnalysisGenerated, proposalService]);
+  
+  // Initialize the database
+  useEffect(() => {
+    const init = async () => {
+      try {
+        await initDB();
+        
+        // Create a dummy IDBDatabase since we don't have direct access to the db instance
+        const dummyDb = {} as IDBDatabase;
+        const service = new ProposalService(dummyDb);
+        setProposalService(service);
+      } catch (err) {
+        console.error('Error initializing:', err);
+      }
+    };
+    
+    init();
+  }, []);
+  
+  // Auto-generate analysis for the current revision if it doesn't have one
+  useEffect(() => {
+    // If we have a current revision but no analysis, automatically request one
+    if (currentRevision && !currentRevision.analysis && !analysis && !isLoading) {
+      // Use a small delay to avoid immediate analysis generation when switching revisions
+      const timer = setTimeout(() => {
+        handleRequestAnalysis();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentRevision, analysis, isLoading, handleRequestAnalysis]);
 
   // Generate a revision based on AI recommendations
-  const handleAutoRevise = async () => {
+  const handleAutoRevise = useCallback(async () => {
     if (!analysis || !onAddRevision) return;
     
     setIsGeneratingRevision(true);
@@ -153,7 +165,7 @@ export default function ProposalAnalysis({ proposal, onAddRevision }: ProposalAn
     } finally {
       setIsGeneratingRevision(false);
     }
-  };
+  }, [analysis, onAddRevision, proposal]);
 
   return (
     <div className="mt-4 border-t border-border/40 pt-4">
@@ -294,7 +306,7 @@ export default function ProposalAnalysis({ proposal, onAddRevision }: ProposalAn
                     Potential Risks
                   </h5>
                   <ul className="text-sm space-y-1">
-                    {analysis.risks.map((risk, index) => (
+                    {analysis.risks.map((risk: string, index: number) => (
                       <li key={index} className="flex items-start">
                         <span className="text-danger mr-1.5">•</span>
                         <span className="text-foreground/80">{risk}</span>
@@ -312,7 +324,7 @@ export default function ProposalAnalysis({ proposal, onAddRevision }: ProposalAn
                     Key Benefits
                   </h5>
                   <ul className="text-sm space-y-1">
-                    {analysis.benefits.map((benefit, index) => (
+                    {analysis.benefits.map((benefit: string, index: number) => (
                       <li key={index} className="flex items-start">
                         <span className="text-success mr-1.5">•</span>
                         <span className="text-foreground/80">{benefit}</span>

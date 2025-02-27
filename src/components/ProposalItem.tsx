@@ -5,6 +5,45 @@ import ProposalChat from './ProposalChat';
 import ProposalAnalysis from './ProposalAnalysis';
 import { formatMarkdownText } from '../utils/formatText';
 
+// Define the Analysis type
+export type Analysis = {
+  feasibility: number;
+  impact: number;
+  cost: number;
+  timeframe: number;
+  risks: string[];
+  benefits: string[];
+  recommendations: string;
+  stakeholderImpact?: {
+    group: string;
+    impact: number;
+    description: string;
+  }[];
+  resourceRequirements?: {
+    resource: string;
+    amount: string;
+    priority: 'low' | 'medium' | 'high';
+  }[];
+  securityImplications?: {
+    concern: string;
+    severity: 'low' | 'medium' | 'high';
+    mitigation: string;
+  }[];
+  implementationSteps?: {
+    step: string;
+    timeframe: string;
+    dependencies: string[];
+  }[];
+};
+
+// Define the Revision type with optional analysis
+export type Revision = {
+  id: number;
+  description: string;
+  timestamp: string;
+  analysis?: Analysis;
+};
+
 export type Proposal = {
   id: string;
   title: string;
@@ -13,40 +52,9 @@ export type Proposal = {
   llmFeedback?: string;
   aiCreated?: boolean;
   aiVoted?: boolean;
-  revisions: {
-    id: number;
-    description: string;
-    timestamp: string;
-  }[];
-  analysis?: {
-    feasibility: number;
-    impact: number;
-    cost: number;
-    timeframe: number;
-    risks: string[];
-    benefits: string[];
-    recommendations: string;
-    stakeholderImpact?: {
-      group: string;
-      impact: number;
-      description: string;
-    }[];
-    resourceRequirements?: {
-      resource: string;
-      amount: string;
-      priority: 'low' | 'medium' | 'high';
-    }[];
-    securityImplications?: {
-      concern: string;
-      severity: 'low' | 'medium' | 'high';
-      mitigation: string;
-    }[];
-    implementationSteps?: {
-      step: string;
-      timeframe: string;
-      dependencies: string[];
-    }[];
-  };
+  revisions: Revision[];
+  // Legacy field - will be removed after migration
+  analysis?: Analysis;
 };
 
 type ProposalItemProps = {
@@ -74,6 +82,7 @@ export default function ProposalItem({
     id: number;
     description: string;
     timestamp: string;
+    analysis?: Analysis;
   };
 
   // Revision history for undo/redo functionality
@@ -92,12 +101,19 @@ export default function ProposalItem({
         uniqueRevisionsMap.set(rev.description, {
           id: rev.id,
           description: rev.description,
-          timestamp: rev.timestamp
+          timestamp: rev.timestamp,
+          analysis: rev.analysis
         });
       });
       
       // Convert map values to array
       const uniqueRevisions = Array.from(uniqueRevisionsMap.values());
+      
+      // Handle legacy analysis migration - if proposal has analysis but the latest revision doesn't
+      if (proposal.analysis && uniqueRevisions.length > 0 && !uniqueRevisions[uniqueRevisions.length - 1].analysis) {
+        // Assign the legacy analysis to the latest revision
+        uniqueRevisions[uniqueRevisions.length - 1].analysis = proposal.analysis;
+      }
       
       // Only update if the revision count has changed to avoid unnecessary re-renders
       if (uniqueRevisions.length !== revisionHistory.length) {
@@ -105,7 +121,7 @@ export default function ProposalItem({
         setCurrentRevisionIndex(uniqueRevisions.length - 1); // Start at the latest revision
       }
     }
-  }, [proposal.revisions]);
+  }, [proposal.revisions, proposal.analysis]);
 
   const handleAddRevision = () => {
     if (!newRevision.trim()) return;
@@ -120,7 +136,8 @@ export default function ProposalItem({
     const newRevisionItem: RevisionHistoryItem = {
       id: Date.now(), // Use timestamp as a temporary ID
       description: newRevision,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      analysis: undefined // New revisions start with no analysis
     };
     
     // Add the new revision to history
@@ -168,7 +185,8 @@ export default function ProposalItem({
       const aiRevisionItem: RevisionHistoryItem = {
         id: Date.now(), // Use timestamp as a temporary ID
         description: data.revisedProposal,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        analysis: undefined // New revisions start with no analysis
       };
       
       // Add the new AI-generated revision to history
@@ -588,10 +606,22 @@ export default function ProposalItem({
               </button>
             )}
           </div>
-          {/* Analysis for this proposal */}
+          {/* Analysis for the current revision */}
           <ProposalAnalysis
             proposal={proposal}
+            currentRevision={currentRevisionIndex >= 0 ? revisionHistory[currentRevisionIndex] : null}
             onAddRevision={onAddRevision}
+            onAnalysisGenerated={(analysis) => {
+              // Update the analysis for the current revision
+              if (currentRevisionIndex >= 0) {
+                const updatedHistory = [...revisionHistory];
+                updatedHistory[currentRevisionIndex] = {
+                  ...updatedHistory[currentRevisionIndex],
+                  analysis
+                };
+                setRevisionHistory(updatedHistory);
+              }
+            }}
           />
           
           {/* Chat for this proposal - renamed to avoid confusion */}

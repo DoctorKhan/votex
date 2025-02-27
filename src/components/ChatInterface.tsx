@@ -209,7 +209,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
           <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-primary mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
-          <h3 className="text-lg font-semibold flex items-center">
+          <h3 className="text-lg font-semibold flex items-center psychedelic-text">
             <span className="bg-accent/10 text-accent text-xs px-2 py-0.5 rounded-full mr-2">Discussion</span>
             Community Discussion Assistant
           </h3>
@@ -265,7 +265,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
           {/* Accessibility Controls */}
           <div className="mb-4 bg-background/50 p-3 rounded-lg border border-border/30">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium">Accessibility Options</h4>
+              <h4 className="text-sm font-medium psychedelic-text">Accessibility Options</h4>
               <div className="flex gap-3">
                 <div className="flex items-center">
                   <label htmlFor="fontSize" className="text-xs text-foreground/60 mr-2">Text Size:</label>
@@ -314,13 +314,13 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
           <div className="bg-background/50 border border-border/70 rounded-xl mb-4 h-[300px] overflow-y-auto p-4">
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium mb-2">No messages yet</h3>
-                <p className="text-foreground/60">Start a conversation by typing a message below.</p>
+                <h3 className="text-xl font-medium mb-2 psychedelic-text">No messages yet</h3>
+                <p className="text-foreground/70 mb-4">Start a conversation by typing a message below.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -361,7 +361,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
           
           {/* Error Message */}
           {error && (
-            <div className="p-4 mb-4 bg-danger/10 border border-danger/20 text-danger rounded-lg flex items-start">
+            <div className="p-4 mb-4 bg-danger/10 border border-danger/20 text-danger rounded-lg flex items-start animate-in">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -411,7 +411,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
               className={`px-4 py-3 rounded-lg font-medium transition-all shadow-sm flex items-center justify-center ${
                 isLoading || !input.trim()
                   ? 'bg-gray-400 cursor-not-allowed opacity-70'
-                  : 'bg-primary hover:bg-primary-hover hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 text-white trippy-hover'
+                  : 'bg-primary hover:bg-primary-hover hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 text-white'
               } ${
                 fontSize === 'large' ? 'text-lg' :
                 fontSize === 'x-large' ? 'text-xl' :

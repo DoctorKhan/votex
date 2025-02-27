@@ -1,4 +1,4 @@
-/* Proposal content styling */
+x`/* Proposal content styling */
 .proposal-content {
   /* General styling */
   line-height: 1.6;
@@ -41,4 +41,26 @@
 .proposal-content strong {
   font-weight: 600;
   color: var(--color-primary, #4a6cf7);
+}
+
+/* Pulsating glow animation for elements - simplified for performance */
+.pulsate-glow {
+  position: relative;
+}
+
+/* Only apply animation on hover for better performance */
+.pulsate-glow:hover {
+  animation: pulsateGlow 2s ease-in-out;
+}
+
+@keyframes pulsateGlow {
+  0% {
+    box-shadow: 0 0 0 rgba(var(--primary-rgb), 0);
+  }
+  50% {
+    box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(var(--primary-rgb), 0);
+  }
 }

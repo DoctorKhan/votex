@@ -21,10 +21,10 @@ export default function ChatPage() {
           </svg>
         </div>
         <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-          Votex
+          Discussions
         </h1>
         <p className="text-foreground/70 max-w-md mx-auto text-lg">
-          Vote on ideas. Get insights. Resolve disputes.
+          Discuss initiatives, share insights, and build consensus
         </p>
       </header>
       

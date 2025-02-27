@@ -34,7 +34,7 @@ export default function Navigation() {
                 <circle cx="12" cy="12" r="4"></circle>
               </svg>
             </div>
-            <span className="font-semibold text-lg">Votex</span>
+            <span className="font-semibold text-lg psychedelic-text">Votex</span>
           </Link>
         </div>
         

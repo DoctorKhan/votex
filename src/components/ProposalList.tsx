@@ -178,7 +178,7 @@ export default function ProposalList() {
 
   if (isLoading) {
     return (
-      <div className="w-full flex justify-center items-center py-12">
+      <div className="w-full flex justify-center items-center py-12 animate-in">
         <div className="relative">
           <div className="w-12 h-12 border-t-4 border-b-4 border-primary rounded-full animate-spin"></div>
           <div className="w-12 h-12 border-r-4 border-l-4 border-accent/30 rounded-full animate-spin absolute inset-0" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
@@ -189,7 +189,7 @@ export default function ProposalList() {
 
   if (error) {
     return (
-      <div className="p-4 mb-4 bg-danger/10 border border-danger/20 text-danger rounded-lg flex items-start">
+      <div className="p-4 mb-4 bg-danger/10 border border-danger/20 text-danger rounded-lg flex items-start animate-in">
         <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -203,7 +203,7 @@ export default function ProposalList() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Initiatives</h2>
+        <h2 className="text-2xl font-bold psychedelic-text">Initiatives</h2>
         <button
           onClick={() => {
             const title = prompt('Enter initiative title:');

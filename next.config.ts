@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   
   // Configure base path for subpath deployment
-  basePath: process.env.NODE_ENV === 'production' ? '/votex' : '',
+  basePath: process.env.NODE_ENV === 'production' ? '' : '',
   
   // Experimental features for faster development
   experimental: {

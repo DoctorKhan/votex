@@ -73,3 +73,53 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Accessibility Styles */
+
+/* Font Size Classes */
+.text-small {
+  font-size: 0.875rem !important;
+}
+
+.text-medium {
+  font-size: 1rem !important;
+}
+
+.text-large {
+  font-size: 1.25rem !important;
+}
+
+.text-x-large {
+  font-size: 1.5rem !important;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --background: #000000 !important;
+  --foreground: #ffffff !important;
+  --card: #000000 !important;
+  --card-foreground: #ffffff !important;
+  --border: #ffffff !important;
+  --input: #ffffff !important;
+  color: #ffffff !important;
+  background-color: #000000 !important;
+}
+
+.high-contrast * {
+  border-color: #ffffff !important;
+}
+
+.high-contrast button,
+.high-contrast a {
+  color: #ffffff !important;
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast input,
+.high-contrast textarea,
+.high-contrast select {
+  color: #ffffff !important;
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}

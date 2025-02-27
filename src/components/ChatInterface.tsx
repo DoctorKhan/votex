@@ -50,9 +50,6 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(true); // Default to expanded
-  const [selectedLanguage, setSelectedLanguage] = useState('english');
-  const [fontSize, setFontSize] = useState('medium');
-  const [highContrast, setHighContrast] = useState(false);
   const [suggestedResponses, setSuggestedResponses] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -94,20 +91,6 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
   // Handle selecting a discussion topic
   const handleSelectTopic = (prompt: string) => {
     setInput(prompt);
-  };
-
-  // Handle language selection
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedLanguage(e.target.value);
-    
-    // Add a system message about the language change
-    setMessages(prev => [
-      ...prev,
-      {
-        role: 'system',
-        content: `Language changed to ${e.target.value}. The assistant will now respond in ${e.target.value}.`
-      }
-    ]);
   };
   
   // Generate new suggested responses based on the conversation context
@@ -161,8 +144,8 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
         content: msg.content
       }));
       
-      // Add context about the current proposals and selected language
-      const systemContext = `${getSystemContext()}\n\nPlease respond in ${selectedLanguage}.`;
+      // Add context about the current proposals
+      const systemContext = getSystemContext();
       
       const response = await fetch('/api/ai-chat', {
         method: 'POST',
@@ -232,68 +215,10 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
       
       {isExpanded && (
         <>
-          <div className="flex justify-between items-center mb-4">
+          <div className="mb-4">
             <p className="text-foreground/70 text-sm">
               Ask questions about initiatives, community engagement, or decision-making
             </p>
-            
-            {/* Language selector */}
-            <div className="flex items-center">
-              <label htmlFor="language" className="text-xs text-foreground/60 mr-2">Language:</label>
-              <select
-                id="language"
-                value={selectedLanguage}
-                onChange={handleLanguageChange}
-                className="text-xs bg-background border border-border/50 rounded px-2 py-1"
-              >
-                <option value="english">English</option>
-                <option value="spanish">Spanish (Español)</option>
-                <option value="french">French (Français)</option>
-                <option value="german">German (Deutsch)</option>
-                <option value="chinese">Chinese (中文)</option>
-                <option value="japanese">Japanese (日本語)</option>
-                <option value="arabic">Arabic (العربية)</option>
-                <option value="hindi">Hindi (हिन्दी)</option>
-                <option value="russian">Russian (Русский)</option>
-                <option value="portuguese">Portuguese (Português)</option>
-                <option value="bengali">Bengali (বাংলা)</option>
-                <option value="urdu">Urdu (اردو)</option>
-              </select>
-            </div>
-          </div>
-          
-          {/* Accessibility Controls */}
-          <div className="mb-4 bg-background/50 p-3 rounded-lg border border-border/30">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium psychedelic-text">Accessibility Options</h4>
-              <div className="flex gap-3">
-                <div className="flex items-center">
-                  <label htmlFor="fontSize" className="text-xs text-foreground/60 mr-2">Text Size:</label>
-                  <select
-                    id="fontSize"
-                    value={fontSize}
-                    onChange={(e) => setFontSize(e.target.value)}
-                    className="text-xs bg-background border border-border/50 rounded px-2 py-1"
-                  >
-                    <option value="small">Small</option>
-                    <option value="medium">Medium</option>
-                    <option value="large">Large</option>
-                    <option value="x-large">Extra Large</option>
-                  </select>
-                </div>
-                
-                <div className="flex items-center">
-                  <label htmlFor="highContrast" className="text-xs text-foreground/60 mr-2">High Contrast:</label>
-                  <input
-                    type="checkbox"
-                    id="highContrast"
-                    checked={highContrast}
-                    onChange={(e) => setHighContrast(e.target.checked)}
-                    className="rounded border-border/50"
-                  />
-                </div>
-              </div>
-            </div>
           </div>
           
           {/* Discussion Topics */}
@@ -342,12 +267,6 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
                           : message.role === 'system'
                             ? 'bg-accent/10 text-accent text-xs py-1 px-2'
                             : 'bg-secondary/10 border border-border rounded-tl-none'
-                      } ${
-                        fontSize === 'large' ? 'text-lg' :
-                        fontSize === 'x-large' ? 'text-xl' :
-                        fontSize === 'small' ? 'text-xs' : 'text-base'
-                      } ${
-                        highContrast && message.role !== 'system' ? '!bg-black !text-white !border-white' : ''
                       }`}
                     >
                       <p className="whitespace-pre-wrap">{message.content}</p>
@@ -397,13 +316,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message here..."
               disabled={isLoading}
-              className={`flex-grow px-4 py-3 bg-card border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
-                fontSize === 'large' ? 'text-lg' :
-                fontSize === 'x-large' ? 'text-xl' :
-                fontSize === 'small' ? 'text-xs' : 'text-base'
-              } ${
-                highContrast ? 'bg-black text-white border-white' : ''
-              }`}
+              className="flex-grow px-4 py-3 bg-card border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
             />
             <button
               type="submit"
@@ -412,12 +325,6 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
                 isLoading || !input.trim()
                   ? 'bg-gray-400 cursor-not-allowed opacity-70'
                   : 'bg-primary hover:bg-primary-hover hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 text-white'
-              } ${
-                fontSize === 'large' ? 'text-lg' :
-                fontSize === 'x-large' ? 'text-xl' :
-                fontSize === 'small' ? 'text-xs' : 'text-base'
-              } ${
-                highContrast ? '!bg-black !text-white !border-white !border-2' : ''
               }`}
             >
               {isLoading ? (

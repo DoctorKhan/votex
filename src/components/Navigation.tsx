@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
+import AccessibilitySettings from './AccessibilitySettings';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -90,7 +91,8 @@ export default function Navigation() {
             </div>
           </Link>
           
-          <div className="pl-1">
+          <div className="flex items-center gap-2 pl-1">
+            <AccessibilitySettings />
             <ThemeToggle />
           </div>
         </div>

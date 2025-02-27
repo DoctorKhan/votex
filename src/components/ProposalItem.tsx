@@ -69,20 +69,43 @@ export default function ProposalItem({
   const [isAddingRevision, setIsAddingRevision] = useState(false);
   const [showRevisions, setShowRevisions] = useState(false);
   
+  // Define a type for our revision history items
+  type RevisionHistoryItem = {
+    id: number;
+    description: string;
+    timestamp: string;
+  };
+
   // Revision history for undo/redo functionality
-  const [revisionHistory, setRevisionHistory] = useState<string[]>([]);
+  const [revisionHistory, setRevisionHistory] = useState<RevisionHistoryItem[]>([]);
   const [currentRevisionIndex, setCurrentRevisionIndex] = useState(-1);
   const [isGeneratingRevision, setIsGeneratingRevision] = useState(false);
 
-  // Initialize revision history with all revisions when component mounts or revisions change
+  // Initialize and update revision history when revisions change
   useEffect(() => {
-    if (proposal.revisions.length > 0 && revisionHistory.length === 0) {
-      // Initialize with all existing revisions
-      const descriptions = proposal.revisions.map(rev => rev.description);
-      setRevisionHistory(descriptions);
-      setCurrentRevisionIndex(descriptions.length - 1); // Start at the latest revision
+    if (proposal.revisions.length > 0) {
+      // Create a map to track unique descriptions and their latest revision
+      const uniqueRevisionsMap = new Map<string, RevisionHistoryItem>();
+      
+      // Process revisions in order, keeping only the latest revision for each unique description
+      proposal.revisions.forEach(rev => {
+        uniqueRevisionsMap.set(rev.description, {
+          id: rev.id,
+          description: rev.description,
+          timestamp: rev.timestamp
+        });
+      });
+      
+      // Convert map values to array
+      const uniqueRevisions = Array.from(uniqueRevisionsMap.values());
+      
+      // Only update if the revision count has changed to avoid unnecessary re-renders
+      if (uniqueRevisions.length !== revisionHistory.length) {
+        setRevisionHistory(uniqueRevisions);
+        setCurrentRevisionIndex(uniqueRevisions.length - 1); // Start at the latest revision
+      }
     }
-  }, [proposal.revisions, revisionHistory.length]);
+  }, [proposal.revisions]);
 
   const handleAddRevision = () => {
     if (!newRevision.trim()) return;
@@ -93,8 +116,15 @@ export default function ProposalItem({
       ? revisionHistory.slice(0, currentRevisionIndex + 1)
       : [];
     
+    // Create a new revision history item
+    const newRevisionItem: RevisionHistoryItem = {
+      id: Date.now(), // Use timestamp as a temporary ID
+      description: newRevision,
+      timestamp: new Date().toISOString()
+    };
+    
     // Add the new revision to history
-    newHistory.push(newRevision);
+    newHistory.push(newRevisionItem);
     setRevisionHistory(newHistory);
     setCurrentRevisionIndex(newHistory.length - 1);
     
@@ -134,8 +164,15 @@ export default function ProposalItem({
         ? revisionHistory.slice(0, currentRevisionIndex + 1)
         : [];
       
+      // Create a new revision history item for the AI-generated revision
+      const aiRevisionItem: RevisionHistoryItem = {
+        id: Date.now(), // Use timestamp as a temporary ID
+        description: data.revisedProposal,
+        timestamp: new Date().toISOString()
+      };
+      
       // Add the new AI-generated revision to history
-      newHistory.push(data.revisedProposal);
+      newHistory.push(aiRevisionItem);
       setRevisionHistory(newHistory);
       setCurrentRevisionIndex(newHistory.length - 1);
       
@@ -155,9 +192,9 @@ export default function ProposalItem({
       setCurrentRevisionIndex(newIndex);
       
       // Update the displayed revision
-      const revisionText = revisionHistory[newIndex];
-      if (revisionText) {
-        onAddRevision(proposal.id, revisionText);
+      const revisionItem = revisionHistory[newIndex];
+      if (revisionItem) {
+        onAddRevision(proposal.id, revisionItem.description);
       }
     }
   };
@@ -169,9 +206,9 @@ export default function ProposalItem({
       setCurrentRevisionIndex(newIndex);
       
       // Update the displayed revision
-      const revisionText = revisionHistory[newIndex];
-      if (revisionText) {
-        onAddRevision(proposal.id, revisionText);
+      const revisionItem = revisionHistory[newIndex];
+      if (revisionItem) {
+        onAddRevision(proposal.id, revisionItem.description);
       }
     }
   };
@@ -379,7 +416,7 @@ export default function ProposalItem({
                   </svg>
                   <h4 className="font-semibold text-foreground/90">Revisions</h4>
                   <span className="ml-2 text-xs text-foreground/50 bg-background/50 px-2 py-0.5 rounded-full">
-                    {proposal.revisions.length} {proposal.revisions.length === 1 ? 'revision' : 'revisions'}
+                    {revisionHistory.length} {revisionHistory.length === 1 ? 'revision' : 'revisions'}
                   </span>
                 </div>
                 
@@ -445,7 +482,7 @@ export default function ProposalItem({
               
               {showRevisions ? (
                 <ul className="space-y-3">
-                  {proposal.revisions.map(revision => (
+                  {revisionHistory.map(revision => (
                     <li key={revision.id} className="bg-background p-4 rounded-lg border border-border/50">
                       <div
                         className="text-foreground/90 proposal-content"
@@ -469,7 +506,7 @@ export default function ProposalItem({
                     dangerouslySetInnerHTML={{
                       __html: formatMarkdownText(
                         currentRevisionIndex >= 0 && currentRevisionIndex < revisionHistory.length
-                          ? revisionHistory[currentRevisionIndex]
+                          ? revisionHistory[currentRevisionIndex].description
                           : proposal.revisions[proposal.revisions.length - 1].description
                       )
                     }}
@@ -481,12 +518,12 @@ export default function ProposalItem({
                     </svg>
                     {currentRevisionIndex === revisionHistory.length - 1 ? (
                       <>
-                        {proposal.revisions[proposal.revisions.length - 1].timestamp}
+                        {revisionHistory[revisionHistory.length - 1].timestamp}
                         <span className="ml-2 text-accent">Latest revision</span>
                       </>
                     ) : (
                       <>
-                        {proposal.revisions[Math.min(currentRevisionIndex, proposal.revisions.length - 1)].timestamp}
+                        {revisionHistory[currentRevisionIndex].timestamp}
                         <span className="ml-2 text-warning">Revision {currentRevisionIndex + 1} of {revisionHistory.length}</span>
                       </>
                     )}

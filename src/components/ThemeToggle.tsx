@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-type ThemeType = 'psychedelic' | 'light' | 'dark';
+type ThemeType = 'light' | 'dark';
 
 interface ThemeToggleProps {
   initialTheme?: ThemeType;
@@ -16,7 +16,7 @@ export default function ThemeToggle({ initialTheme = 'light' }: ThemeToggleProps
     const body = document.body;
     
     // Remove all theme classes
-    body.classList.remove('theme-psychedelic', 'theme-light', 'theme-dark');
+    body.classList.remove('theme-light', 'theme-dark');
     
     // Add the current theme class
     body.classList.add(`theme-${theme}`);
@@ -28,7 +28,7 @@ export default function ThemeToggle({ initialTheme = 'light' }: ThemeToggleProps
   // Load theme preference from localStorage on component mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as ThemeType | null;
-    if (savedTheme && ['psychedelic', 'light', 'dark'].includes(savedTheme)) {
+    if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
       setTheme(savedTheme as ThemeType);
     }
   }, []);
@@ -37,28 +37,10 @@ export default function ThemeToggle({ initialTheme = 'light' }: ThemeToggleProps
     <div className="flex items-center space-x-2">
       <div className="flex bg-card/50 p-1 rounded-lg border border-border/30">
         <button
-          onClick={() => setTheme('psychedelic')}
-          className={`px-3 py-1 rounded-md text-sm transition-all ${
-            theme === 'psychedelic' 
-              ? 'bg-accent text-white shadow-md pulsate-glow' 
-              : 'text-foreground/70 hover:text-foreground'
-          }`}
-          aria-label="Switch to psychedelic theme"
-        >
-          <div className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 mr-1">
-              <circle cx="12" cy="12" r="5" />
-              <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-            </svg>
-            <span>Psychedelic</span>
-          </div>
-        </button>
-        
-        <button
           onClick={() => setTheme('light')}
           className={`px-3 py-1 rounded-md text-sm transition-all ${
-            theme === 'light' 
-              ? 'bg-primary text-white shadow-md' 
+            theme === 'light'
+              ? 'bg-primary text-white shadow-md'
               : 'text-foreground/70 hover:text-foreground'
           }`}
           aria-label="Switch to light theme"
@@ -82,8 +64,8 @@ export default function ThemeToggle({ initialTheme = 'light' }: ThemeToggleProps
         <button
           onClick={() => setTheme('dark')}
           className={`px-3 py-1 rounded-md text-sm transition-all ${
-            theme === 'dark' 
-              ? 'bg-secondary text-white shadow-md' 
+            theme === 'dark'
+              ? 'bg-secondary text-white shadow-md'
               : 'text-foreground/70 hover:text-foreground'
           }`}
           aria-label="Switch to dark theme"

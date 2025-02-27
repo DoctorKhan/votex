@@ -203,11 +203,11 @@ export default function ProposalList() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Proposals</h2>
+        <h2 className="text-2xl font-bold">Initiatives</h2>
         <button
           onClick={() => {
-            const title = prompt('Enter proposal title:');
-            const description = prompt('Enter proposal description:');
+            const title = prompt('Enter initiative title:');
+            const description = prompt('Enter initiative description:');
             if (title && description) {
               handleCreateProposal(title, description);
             }
@@ -218,7 +218,7 @@ export default function ProposalList() {
             <path d="M12 5v14"></path>
             <path d="M5 12h14"></path>
           </svg>
-          Create Proposal
+          Create Initiative
         </button>
       </div>
       
@@ -230,8 +230,8 @@ export default function ProposalList() {
               <path d="M22 19H2"></path>
             </svg>
           </div>
-          <h3 className="text-xl font-medium mb-2">No proposals yet</h3>
-          <p className="text-foreground/70 mb-4">Be the first to create a proposal for the community to vote on.</p>
+          <h3 className="text-xl font-medium mb-2">No initiatives yet</h3>
+          <p className="text-foreground/70 mb-4">Be the first to create an initiative for the community to vote on.</p>
         </div>
       ) : (
         <div className="space-y-4">

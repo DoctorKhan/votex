@@ -37,14 +37,14 @@ export default function Navigation() {
       
       <div className="flex items-center gap-6">
         <Link
-          href="/"
+          href="/initiatives"
           className={`text-sm font-medium transition-colors ${
-            pathname === '/'
+            pathname === '/initiatives'
               ? 'text-primary'
               : 'text-foreground/70 hover:text-foreground'
           }`}
         >
-          Voting
+          Initiatives
         </Link>
         
         <Link

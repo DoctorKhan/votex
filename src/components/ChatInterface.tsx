@@ -19,10 +19,10 @@ interface ChatInterfaceProps {
 // Define discussion topics for the MEDIATOR AI
 const discussionTopics = [
   {
-    id: 'proposal_feedback',
-    name: 'Proposal Feedback',
-    description: 'Get feedback on existing proposals or ideas for new ones',
-    prompt: 'I\'d like to discuss the current proposals and get your feedback on them.'
+    id: 'initiative_feedback',
+    name: 'Initiative Feedback',
+    description: 'Get feedback on existing initiatives or ideas for new ones',
+    prompt: 'I\'d like to discuss the current initiatives and get your feedback on them.'
   },
   {
     id: 'community_engagement',
@@ -33,8 +33,8 @@ const discussionTopics = [
   {
     id: 'conflict_resolution',
     name: 'Conflict Resolution',
-    description: 'Get help with resolving conflicts between competing proposals',
-    prompt: 'I notice there are some competing proposals. Can you help analyze the trade-offs?'
+    description: 'Get help with resolving conflicts between competing initiatives',
+    prompt: 'I notice there are some competing initiatives. Can you help analyze the trade-offs?'
   },
   {
     id: 'deliberative_process',
@@ -67,26 +67,26 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
       setMessages([
         {
           role: 'assistant',
-          content: 'Hello! I\'m the MEDIATOR AI assistant. I can help facilitate discussions about proposals, community engagement, and decision-making processes. How can I assist you today?'
+          content: 'Hello! I\'m the MEDIATOR AI assistant. I can help facilitate discussions about initiatives, community engagement, and decision-making processes. How can I assist you today?'
         }
       ]);
       
       // Set initial suggested responses
       setSuggestedResponses([
-        'Tell me about the current proposals',
+        'Tell me about the current initiatives',
         'How can we improve community engagement?',
-        'What makes a good proposal?'
+        'What makes a good initiative?'
       ]);
     }
   }, [messages.length]);
 
-  // Create a system message that includes information about the current proposals
+  // Create a system message that includes information about the current initiatives
   const getSystemContext = () => {
     if (proposals.length === 0) {
-      return "There are currently no proposals in the system.";
+      return "There are currently no initiatives in the system.";
     }
     
-    return `Here are the current proposals in the system:\n${proposals.map((p, i) =>
+    return `Here are the current initiatives in the system:\n${proposals.map((p, i) =>
       `${i+1}. ${p.title} (${p.votes} votes): ${p.description}`
     ).join('\n')}`;
   };
@@ -116,8 +116,8 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
     const followUps: string[] = [];
     
     // Add general follow-ups based on content
-    if (lastMessage.toLowerCase().includes('proposal')) {
-      followUps.push('Can you explain more about this proposal?');
+    if (lastMessage.toLowerCase().includes('initiative')) {
+      followUps.push('Can you explain more about this initiative?');
     }
     
     if (lastMessage.toLowerCase().includes('community')) {
@@ -210,7 +210,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
           <h3 className="text-lg font-semibold flex items-center">
-            <span className="bg-accent/10 text-accent text-xs px-2 py-0.5 rounded-full mr-2">Mediation</span>
+            <span className="bg-accent/10 text-accent text-xs px-2 py-0.5 rounded-full mr-2">Discussion</span>
             Community Discussion Assistant
           </h3>
         </div>
@@ -234,7 +234,7 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
         <>
           <div className="flex justify-between items-center mb-4">
             <p className="text-foreground/70 text-sm">
-              Ask questions about proposals, community engagement, or decision-making
+              Ask questions about initiatives, community engagement, or decision-making
             </p>
             
             {/* Language selector */}

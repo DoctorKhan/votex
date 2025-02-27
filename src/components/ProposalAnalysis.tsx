@@ -196,7 +196,7 @@ export default function ProposalAnalysis({
       {isExpanded && (
         <>
           <p className="text-foreground/70 text-sm mb-3">
-            Get a detailed analysis of this proposal including feasibility, impact, and recommendations
+            Get a detailed analysis of this initiative including feasibility, impact, and recommendations
           </p>
           
           {!analysis && !isLoading && (
@@ -224,7 +224,7 @@ export default function ProposalAnalysis({
                   <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
                 </div>
               </div>
-              <span className="ml-3 text-foreground/70">Analyzing proposal...</span>
+              <span className="ml-3 text-foreground/70">Analyzing initiative...</span>
             </div>
           )}
           

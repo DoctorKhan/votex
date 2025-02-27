@@ -25,17 +25,17 @@ export default function ProposalChat({ proposal }: ProposalChatProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Create a system message that includes information about the specific proposal
+  // Create a system message that includes information about the specific initiative
   const getProposalContext = () => {
-    return `This conversation is about the proposal: "${proposal.title}". 
+    return `This conversation is about the initiative: "${proposal.title}".
     Description: ${proposal.description}
     Current votes: ${proposal.votes}
-    ${proposal.aiCreated ? 'This proposal was created by AI.' : ''}
-    ${proposal.aiVoted ? 'AI has voted for this proposal.' : ''}
-    ${proposal.llmFeedback ? `AI feedback on this proposal: ${proposal.llmFeedback}` : ''}
-    ${proposal.revisions.length > 0 
-      ? `Revisions: ${proposal.revisions.map(r => `${r.timestamp}: ${r.description}`).join(' | ')}` 
-      : 'No revisions have been made to this proposal.'}`;
+    ${proposal.aiCreated ? 'This initiative was created by AI.' : ''}
+    ${proposal.aiVoted ? 'AI has voted for this initiative.' : ''}
+    ${proposal.llmFeedback ? `AI feedback on this initiative: ${proposal.llmFeedback}` : ''}
+    ${proposal.revisions.length > 0
+      ? `Revisions: ${proposal.revisions.map(r => `${r.timestamp}: ${r.description}`).join(' | ')}`
+      : 'No revisions have been made to this initiative.'}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,7 +175,7 @@ export default function ProposalChat({ proposal }: ProposalChatProps) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask a question about this proposal..."
+              placeholder="Ask a question about this initiative..."
               disabled={isLoading}
               className="flex-grow px-3 py-2 bg-card border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors text-sm"
             />

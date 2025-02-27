@@ -1,8 +1,9 @@
 'use client';
 
-import ChatInterface from '../../components/ChatInterface';
+import VotingApp from "../../components/VotingApp";
+import ProposalList from "../../components/ProposalList";
 
-export default function ChatPage() {
+export default function InitiativesPage() {
   return (
     <div className="grid grid-rows-[auto_1fr_auto] min-h-[calc(100vh-64px)] p-4 md:p-8 gap-6 md:gap-8 bg-gradient-to-b from-background to-background/80">
       <header className="text-center animate-in py-6 mt-4">
@@ -17,19 +18,22 @@ export default function ChatPage() {
             strokeLinejoin="round"
             className="w-8 h-8 text-primary"
           >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7Z"></path>
+            <path d="M22 19H2"></path>
           </svg>
         </div>
         <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-          Votex
+          Initiatives
         </h1>
         <p className="text-foreground/70 max-w-md mx-auto text-lg">
-          Vote on ideas. Get insights. Resolve disputes.
+          Propose, vote, and collaborate on ideas with AI assistance
         </p>
       </header>
       
       <main className="w-full max-w-4xl mx-auto px-4">
-        <ChatInterface proposals={[]} />
+        <VotingApp>
+          <ProposalList />
+        </VotingApp>
       </main>
       
       <footer className="text-center text-sm text-foreground/60 py-6 border-t border-border/40 mt-8">

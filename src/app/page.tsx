@@ -39,11 +39,14 @@ export default function Home() {
           <div className="text-center p-8 bg-card rounded-lg shadow-lg max-w-lg w-full">
             <h2 className="text-2xl font-bold mb-4">Welcome to the Voting System</h2>
             <p className="mb-6 text-muted-foreground">
-              This platform allows humans and AI to collaborate on proposals and voting.
+              This platform allows humans and AI to collaborate on initiatives and voting.
             </p>
             <div className="flex justify-center space-x-4">
-              <a href="/chat" className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
-                Start Chatting
+              <a href="/initiatives" className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors mr-2">
+                View Initiatives
+              </a>
+              <a href="/chat" className="px-4 py-2 bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-colors">
+                Join Discussion
               </a>
             </div>
           </div>

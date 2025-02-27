@@ -631,11 +631,11 @@ export default function ProposalItem({
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-primary mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
-                <h4 className="font-semibold">Mediation Discussion</h4>
+                <h4 className="font-semibold">Discussion</h4>
               </div>
             </div>
             <p className="text-foreground/70 text-sm mb-3">
-              Ask questions about this specific proposal or get more information
+              Ask questions about this specific initiative or get more information
             </p>
             <ProposalChat proposal={proposal} />
           </div>

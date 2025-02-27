@@ -177,10 +177,10 @@ export default function ProposalItem({
   };
 
   return (
-    <div className="border border-border/60 rounded-xl p-5 bg-card shadow-sm hover:shadow-md transition-all duration-200 group distort-hover rainbow-border">
-      <div className="flex justify-between items-start mb-3">
+    <div className={`border border-border/60 rounded-xl bg-card shadow-sm hover:shadow-md transition-all duration-200 group distort-hover rainbow-border ${isExpanded ? 'p-5' : 'p-4'}`}>
+      <div className={`flex justify-between items-start ${isExpanded ? 'mb-3' : 'mb-2'}`}>
         <div>
-          <h3 className="font-bold text-lg group-hover:text-primary transition-colors psychedelic-text">{proposal.title}</h3>
+          <h3 className={`font-bold group-hover:text-primary transition-colors psychedelic-text ${isExpanded ? 'text-lg' : 'text-base'}`}>{proposal.title}</h3>
           <div className="flex flex-wrap gap-2 mt-1.5">
             {proposal.aiCreated && (
               <span className="inline-flex items-center bg-accent/10 text-accent text-xs px-2.5 py-1 rounded-full pulsate-glow">
@@ -224,28 +224,30 @@ export default function ProposalItem({
         </div>
       </div>
       
-      <div className="bg-background/50 rounded-lg p-3 mb-4 border border-border/40">
+      <div className={`bg-background/50 rounded-lg border border-border/40 mb-4 ${isExpanded ? 'p-3' : 'p-2'}`}>
         <div
-          className="text-foreground/90 proposal-content"
+          className={`text-foreground/90 proposal-content ${isExpanded ? '' : 'text-sm'}`}
           dangerouslySetInnerHTML={{ __html: formatMarkdownText(proposal.description) }}
         />
       </div>
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className={`flex flex-wrap mb-4 ${isExpanded ? 'gap-2' : 'gap-1.5'}`}>
         <button
           onClick={() => onVote(proposal.id)}
           disabled={hasVoted}
-          className={`py-2 px-4 rounded-lg text-white font-medium transition-all shadow-sm flex items-center trippy-hover ${
+          className={`rounded-lg text-white font-medium transition-all shadow-sm flex items-center trippy-hover ${
+            isExpanded ? 'py-2 px-4' : 'py-1 px-2'
+          } ${
             hasVoted
               ? 'bg-gray-400 cursor-not-allowed opacity-70'
               : 'bg-primary hover:bg-primary-hover hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 pulsate-glow'
           }`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" className={`animate-pulse ${isExpanded ? 'w-4 h-4 mr-1.5' : 'w-3.5 h-3.5 mr-1'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m9 12 2 2 4-4"></path>
             <path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7Z"></path>
             <path d="M22 19H2"></path>
           </svg>
-          <span className="relative">
+          <span className={`relative ${isExpanded ? 'text-base' : 'text-sm'}`}>
             {hasVoted ? 'Voted' : 'Vote'}
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white/30 animate-pulse"></span>
           </span>
@@ -253,12 +255,14 @@ export default function ProposalItem({
         
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="py-2 px-4 rounded-lg bg-background hover:bg-background/80 border border-border/60 transition-all hover:shadow-sm flex items-center trippy-hover"
+          className={`rounded-lg bg-background hover:bg-background/80 border border-border/60 transition-all hover:shadow-sm flex items-center trippy-hover ${
+            isExpanded ? 'py-2 px-4' : 'py-1 px-2'
+          }`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 mr-1.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" className={`transition-transform ${isExpanded ? 'w-4 h-4 mr-1.5 rotate-180' : 'w-3.5 h-3.5 mr-1'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m6 9 6 6 6-6"></path>
           </svg>
-          <span className="relative">
+          <span className={`relative ${isExpanded ? 'text-base' : 'text-sm'}`}>
             {isExpanded ? 'Hide Details' : 'Show Details'}
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-foreground/30 animate-pulse"></span>
           </span>
@@ -267,9 +271,11 @@ export default function ProposalItem({
         {!proposal.llmFeedback && (
           <button
             onClick={() => onRequestLlmFeedback(proposal.id)}
-            className="py-2 px-4 rounded-lg bg-accent hover:bg-accent-hover text-white transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 flex items-center trippy-hover pulsate-glow"
+            className={`rounded-lg bg-accent hover:bg-accent-hover text-white transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 flex items-center trippy-hover pulsate-glow ${
+              isExpanded ? 'py-2 px-4' : 'py-1 px-2'
+            }`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" className={`animate-pulse ${isExpanded ? 'w-4 h-4 mr-1.5' : 'w-3.5 h-3.5 mr-1'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 8V4H8"></path>
               <rect width="16" height="12" x="4" y="8" rx="2"></rect>
               <path d="M2 14h2"></path>
@@ -277,7 +283,7 @@ export default function ProposalItem({
               <path d="M15 13v2"></path>
               <path d="M9 13v2"></path>
             </svg>
-            <span className="relative">
+            <span className={`relative ${isExpanded ? 'text-base' : 'text-sm'}`}>
               Get AI Feedback
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white/30 animate-pulse"></span>
             </span>

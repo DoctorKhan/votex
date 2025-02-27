@@ -33,10 +33,10 @@ export default function ChatPage() {
       </header>
       
       <div className="flex justify-center mb-6">
-        <div className="bg-card border border-border/60 rounded-lg p-1 flex">
+        <div className="bg-card border border-border/60 rounded-lg p-1 flex h-12">
           <button
             onClick={() => setActiveTab('proposals')}
-            className={`px-4 py-2 rounded-md transition-colors ${
+            className={`px-4 py-2 h-10 rounded-md transition-colors ${
               activeTab === 'proposals'
                 ? 'bg-primary text-white'
                 : 'hover:bg-background/80'
@@ -46,7 +46,7 @@ export default function ChatPage() {
           </button>
           <button
             onClick={() => setActiveTab('chat')}
-            className={`px-4 py-2 rounded-md transition-colors ${
+            className={`px-4 py-2 h-10 rounded-md transition-colors ${
               activeTab === 'chat'
                 ? 'bg-primary text-white'
                 : 'hover:bg-background/80'

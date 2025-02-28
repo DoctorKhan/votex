@@ -47,45 +47,45 @@ This phase focuses on establishing the foundational architecture and implementin
 - Integration tests for proposal creation and voting
 - Security tests for vote validation
 
-## Phase 2: AI Integration
+## Phase 2: Intelligent System Integration
 
 **Duration: 2-3 weeks**
 
-This phase focuses on integrating AI capabilities to enhance the voting experience.
+This phase focuses on integrating intelligent capabilities to enhance the voting experience.
 
 ### Goals:
-- Implement AI proposal generation
-- Implement AI voting
-- Implement AI analysis of proposals
-- Implement AI feedback on proposals
+- Implement smart proposal generation
+- Implement intelligent voting
+- Implement automated analysis of proposals
+- Implement smart feedback on proposals
 
 ### Tasks:
-1. **AI Service Implementation (Week 1)**
+1. **Intelligent Service Implementation (Week 1)**
    - Set up GROQ API integration
-   - Implement AI proposal generation
-   - Implement AI voting mechanism
+   - Implement smart proposal generation
+   - Implement intelligent voting mechanism
    - Implement error handling and fallbacks
 
-2. **AI Analysis Features (Week 1-2)**
+2. **Automated Analysis Features (Week 1-2)**
    - Implement proposal analysis functionality
    - Create visualization components for analysis results
-   - Implement AI feedback mechanism
+   - Implement smart feedback mechanism
 
-3. **UI Enhancements for AI Features (Week 2-3)**
-   - Create AI proposal generation interface
-   - Implement AI voting controls
+3. **UI Enhancements for Intelligent Features (Week 2-3)**
+   - Create smart proposal generation interface
+   - Implement intelligent voting controls
    - Create analysis visualization components
    - Implement feedback display
 
 ### Deliverables:
-- AI-powered proposal generation
-- AI voting capability
+- Intelligently powered proposal generation
+- Smart voting capability
 - Detailed proposal analysis with visualizations
-- AI feedback mechanism for proposals
+- Intelligent feedback mechanism for proposals
 
 ### Testing Focus:
-- Unit tests for AI service functions
-- Integration tests for AI features
+- Unit tests for intelligent service functions
+- Integration tests for smart features
 - Mock tests for API interactions
 - Error handling and fallback tests
 
@@ -111,7 +111,7 @@ This phase focuses on improving the user experience and adding features for bett
 2. **Chat and Discussion (Week 1-2)**
    - Implement ProposalChat component
    - Create chat interface
-   - Integrate with AI for intelligent responses
+   - Integrate with intelligent systems for smart responses
    - Implement real-time updates
 
 3. **UI Enhancements (Week 2)**
@@ -291,7 +291,7 @@ The success of the project will be measured by:
    - Data integrity measures
 
 4. **Feature Adoption**
-   - AI feature usage
+   - Smart feature usage
    - Chat engagement
    - Revision frequency
 

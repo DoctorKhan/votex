@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document outlines a comprehensive test-driven development (TDD) approach for the Votex application. Following the vision document's objectives, these tests will ensure the application meets its goals of providing a secure, transparent, and inclusive voting platform with AI-enhanced capabilities.
+This document outlines a comprehensive test-driven development (TDD) approach for the Votex application. Following the vision document's objectives, these tests will ensure the application meets its goals of providing a secure, transparent, and inclusive voting platform with intelligently enhanced capabilities.
 
 ## TDD Process
 
@@ -400,24 +400,24 @@ describe('Proposal Voting', () => {
 });
 ```
 
-### 2. AI Integration
+### 2. Intelligent System Integration
 
-#### 2.1 AI Proposal Generation Tests
+#### 2.1 Smart Proposal Generation Tests
 
 ```typescript
-// src/__tests__/ai/proposal-generation.test.ts
+// src/__tests__/intelligent/proposal-generation.test.ts
 
-import { generateAiProposal } from '../../lib/aiService';
+import { generateSmartProposal } from '../../lib/intelligentService';
 import fetch from 'node-fetch';
 
 jest.mock('node-fetch');
 
-describe('AI Proposal Generation', () => {
+describe('Smart Proposal Generation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('should generate a new AI proposal', async () => {
+  test('should generate a new intelligent proposal', async () => {
     // Arrange
     const mockResponse = {
       choices: [
@@ -435,7 +435,7 @@ describe('AI Proposal Generation', () => {
     });
     
     // Act
-    const result = await generateAiProposal([]);
+    const result = await generateSmartProposal([]);
     
     // Assert
     expect(result).toHaveProperty('title', 'Community Garden Expansion');
@@ -466,7 +466,7 @@ describe('AI Proposal Generation', () => {
     });
     
     // Act
-    const result = await generateAiProposal(existingProposals);
+    const result = await generateSmartProposal(existingProposals);
     
     // Assert
     expect(result.title).not.toContain('Community Garden');
@@ -484,7 +484,7 @@ describe('AI Proposal Generation', () => {
     });
     
     // Act
-    const result = await generateAiProposal([]);
+    const result = await generateSmartProposal([]);
     
     // Assert
     expect(result).toHaveProperty('title');
@@ -494,17 +494,17 @@ describe('AI Proposal Generation', () => {
 });
 ```
 
-#### 2.2 AI Voting Tests
+#### 2.2 Intelligent Voting Tests
 
 ```typescript
-// src/__tests__/ai/voting.test.ts
+// src/__tests__/intelligent/voting.test.ts
 
-import { analyzeAndVote } from '../../lib/aiService';
+import { analyzeAndVote } from '../../lib/intelligentService';
 import fetch from 'node-fetch';
 
 jest.mock('node-fetch');
 
-describe('AI Voting', () => {
+describe('Intelligent Voting', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -574,17 +574,17 @@ describe('AI Voting', () => {
 });
 ```
 
-#### 2.3 AI Analysis Tests
+#### 2.3 Intelligent Analysis Tests
 
 ```typescript
-// src/__tests__/ai/analysis.test.ts
+// src/__tests__/intelligent/analysis.test.ts
 
-import { generateProposalAnalysis } from '../../lib/aiService';
+import { generateProposalAnalysis } from '../../lib/intelligentService';
 import fetch from 'node-fetch';
 
 jest.mock('node-fetch');
 
-describe('AI Proposal Analysis', () => {
+describe('Intelligent Proposal Analysis', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -653,17 +653,17 @@ describe('AI Proposal Analysis', () => {
 });
 ```
 
-#### 2.4 AI Feedback Tests
+#### 2.4 Smart Feedback Tests
 
 ```typescript
-// src/__tests__/ai/feedback.test.ts
+// src/__tests__/intelligent/feedback.test.ts
 
-import { getLlmFeedback } from '../../lib/aiService';
+import { getSmartFeedback } from '../../lib/intelligentService';
 import fetch from 'node-fetch';
 
 jest.mock('node-fetch');
 
-describe('AI Feedback', () => {
+describe('Smart Feedback', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -689,7 +689,7 @@ describe('AI Feedback', () => {
     });
     
     // Act
-    const result = await getLlmFeedback(mockTitle, mockDescription);
+    const result = await getSmartFeedback(mockTitle, mockDescription);
     
     // Assert
     expect(result).toContain('strong community benefits');
@@ -708,8 +708,8 @@ describe('AI Feedback', () => {
     });
     
     // Act & Assert
-    await expect(getLlmFeedback(mockTitle, mockDescription))
-      .rejects.toThrow('Failed to get AI feedback');
+    await expect(getSmartFeedback(mockTitle, mockDescription))
+      .rejects.toThrow('Failed to get intelligent feedback');
   });
 });
 ```
@@ -812,7 +812,7 @@ describe('User Chat', () => {
     jest.clearAllMocks();
   });
 
-  test('should send user message and receive AI response', async () => {
+  test('should send user message and receive intelligent response', async () => {
     // Arrange
     const mockProposal = {
       id: 'proposal-1',
@@ -856,7 +856,7 @@ describe('User Chat', () => {
     
     // Assert
     expect(mockEvent.preventDefault).toHaveBeenCalled();
-    expect(mockSetMessages).toHaveBeenCalledTimes(2); // Once for user message, once for AI response
+    expect(mockSetMessages).toHaveBeenCalledTimes(2); // Once for user message, once for intelligent response
     expect(mockSetInput).toHaveBeenCalledWith('');
     expect(mockSetIsLoading).toHaveBeenCalledWith(true);
     expect(mockSetIsLoading).toHaveBeenCalledWith(false);
@@ -1108,7 +1108,7 @@ Based on the test plan above, we will implement the following services:
 
 1. **Proposal Service**: Handles CRUD operations for proposals and revisions
 2. **Voting Service**: Manages vote casting, validation, and vote status
-3. **AI Service**: Integrates with GROQ API for proposal generation, voting, analysis, and feedback
+3. **Intelligent Service**: Integrates with GROQ API for proposal generation, voting, analysis, and feedback
 4. **Security Service**: Provides vote validation and tamper-evident logging
 5. **Storage Service**: Manages data persistence with InstantDB and localStorage fallback
 
@@ -1119,9 +1119,9 @@ The implementation will follow the TDD approach, with each feature being develop
 This test-driven development plan provides a comprehensive approach to building the Votex application. By following this plan, we will ensure that the application meets the key objectives outlined in the vision document:
 
 1. Secure, tamper-evident voting
-2. AI-assisted deliberation and proposal refinement
+2. Intelligently assisted deliberation and proposal refinement
 3. Inclusive decision-making
 4. Scalable and adaptable architecture
 5. Actionable outcomes
 
-The tests cover all critical aspects of the application, from basic CRUD operations to advanced AI integration and security features. This approach will result in a robust, reliable application that fulfills the vision of revolutionizing democratic participation through a secure, AI-powered voting platform.
+The tests cover all critical aspects of the application, from basic CRUD operations to advanced intelligent integration and security features. This approach will result in a robust, reliable application that fulfills the vision of revolutionizing democratic participation through a secure, intelligently enhanced voting platform.

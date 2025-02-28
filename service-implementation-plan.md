@@ -43,8 +43,8 @@ export async function createProposal(title: string, description: string) {
         title,
         description,
         votes: 0,
-        aiCreated: false,
-        aiVoted: false,
+        smartCreated: false,
+        intelligentVoted: false,
         createdAt: Date.now()
       })
     );
@@ -55,8 +55,8 @@ export async function createProposal(title: string, description: string) {
       title,
       description,
       votes: 0,
-      aiCreated: false,
-      aiVoted: false,
+      smartCreated: false,
+      intelligentVoted: false,
       revisions: []
     };
   } catch (error) {
@@ -106,9 +106,9 @@ export async function getProposals() {
         title: proposal.title,
         description: proposal.description,
         votes: proposal.votes || 0,
-        aiCreated: proposal.aiCreated || false,
-        aiVoted: proposal.aiVoted || false,
-        llmFeedback: proposal.llmFeedback,
+        smartCreated: proposal.smartCreated || false,
+        intelligentVoted: proposal.intelligentVoted || false,
+        smartFeedback: proposal.smartFeedback,
         revisions: proposalRevisions
       };
     });
@@ -160,9 +160,9 @@ export async function getProposalById(id: string) {
       title: data.proposals[id].title,
       description: data.proposals[id].description,
       votes: data.proposals[id].votes || 0,
-      aiCreated: data.proposals[id].aiCreated || false,
-      aiVoted: data.proposals[id].aiVoted || false,
-      llmFeedback: data.proposals[id].llmFeedback,
+      smartCreated: data.proposals[id].smartCreated || false,
+      intelligentVoted: data.proposals[id].intelligentVoted || false,
+      smartFeedback: data.proposals[id].smartFeedback,
       revisions: proposalRevisions
     };
   } catch (error) {
@@ -429,7 +429,7 @@ export async function resetVotes() {
     
     // Reset vote counts for all proposals
     const resetProposalVotesTxs = Object.keys(data.proposals).map(proposalId =>
-      db.tx.proposals[proposalId].update({ votes: 0, aiVoted: false })
+      db.tx.proposals[proposalId].update({ votes: 0, intelligentVoted: false })
     );
     
     await db.transact([...deleteVoteTxs, ...resetProposalVotesTxs]);
@@ -451,17 +451,17 @@ export async function resetVotes() {
 }
 ```
 
-## 3. AI Service
+## 3. Intelligent Service
 
-The AI Service will handle all interactions with the GROQ API for AI-powered features.
+The Intelligent Service will handle all interactions with the GROQ API for smart features.
 
 ### Implementation Steps:
 
-1. Create an `aiService.ts` file in the `src/lib` directory
+1. Create an `intelligentService.ts` file in the `src/lib` directory
 2. Implement the following functions:
 
 ```typescript
-// src/lib/aiService.ts
+// src/lib/intelligentService.ts
 
 import fetch from 'node-fetch';
 import { logAction } from './loggingService';
@@ -471,11 +471,11 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 /**
- * Generates an AI proposal based on existing proposals
+ * Generates a smart proposal based on existing proposals
  * @param existingProposals Array of existing proposal strings
  * @returns Object with title and description
  */
-export async function generateAiProposal(existingProposals: string[]) {
+export async function generateSmartProposal(existingProposals: string[]) {
   try {
     // Create a prompt that includes existing proposals to avoid duplication
     const existingProposalsText = existingProposals.length > 0 
@@ -493,7 +493,7 @@ export async function generateAiProposal(existingProposals: string[]) {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant that generates thoughtful community improvement proposals. 
+            content: `You are an assistant that generates thoughtful community improvement proposals. 
             Your proposals should be realistic, specific, and focused on improving community well-being, 
             infrastructure, education, environment, or social cohesion.`
           },
@@ -526,21 +526,21 @@ export async function generateAiProposal(existingProposals: string[]) {
     const titleMatch = content.match(/Title:\s*(.*?)(?:\n|$)/);
     const descriptionMatch = content.match(/Description:\s*([\s\S]*?)(?:\n\n|$)/);
     
-    const title = titleMatch ? titleMatch[1].trim() : 'AI-Generated Community Proposal';
+    const title = titleMatch ? titleMatch[1].trim() : 'Smart-Generated Community Proposal';
     const description = descriptionMatch 
       ? descriptionMatch[1].trim() 
       : 'A proposal to improve the community through collaborative efforts and innovative solutions.';
     
-    // Log the AI proposal generation
+    // Log the smart proposal generation
     await logAction({
-      type: 'AI_PROPOSAL_GENERATION',
+      type: 'SMART_PROPOSAL_GENERATION',
       title,
       timestamp: Date.now()
     });
     
     return { title, description };
   } catch (error) {
-    console.error('Error generating AI proposal:', error);
+    console.error('Error generating smart proposal:', error);
     // Fallback to a default proposal if the API call fails
     return { 
       title: 'Community Improvement Initiative', 
@@ -574,7 +574,7 @@ export async function analyzeAndVote(proposals) {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant that evaluates community proposals and votes for those that would 
+            content: `You are an assistant that evaluates community proposals and votes for those that would 
             have the most positive impact. You should consider factors like feasibility, community benefit, 
             sustainability, inclusivity, and cost-effectiveness. You should vote for 1-3 proposals maximum.`
           },
@@ -627,9 +627,9 @@ REASONING: Proposals 1 and 3 offer the most comprehensive and sustainable soluti
       .filter(num => num > 0 && num <= proposals.length)
       .map(num => proposals[num - 1].id);
     
-    // Log the AI voting
+    // Log the intelligent voting
     await logAction({
-      type: 'AI_VOTE',
+      type: 'INTELLIGENT_VOTE',
       proposalIds: votedIds,
       timestamp: Date.now()
     });
@@ -663,7 +663,7 @@ export async function generateProposalAnalysis(title, description) {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant that specializes in analyzing community proposals. 
+            content: `You are an assistant that specializes in analyzing community proposals. 
             You will be given a proposal title and description, and you need to analyze it in terms of:
             1. Feasibility (how realistic and achievable it is)
             2. Impact (potential positive effects on the community)
@@ -759,12 +759,12 @@ export async function generateProposalAnalysis(title, description) {
 }
 
 /**
- * Gets LLM feedback on a proposal
+ * Gets smart feedback on a proposal
  * @param title The proposal title
  * @param description The proposal description
  * @returns Feedback string
  */
-export async function getLlmFeedback(title: string, description: string) {
+export async function getSmartFeedback(title: string, description: string) {
   if (!title.trim() || !description.trim()) {
     throw new Error('Title and description are required');
   }
@@ -781,7 +781,7 @@ export async function getLlmFeedback(title: string, description: string) {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant that provides constructive feedback on community proposals. 
+            content: `You are an assistant that provides constructive feedback on community proposals. 
             Your feedback should be balanced, highlighting strengths and suggesting improvements.`
           },
           {
@@ -814,15 +814,15 @@ export async function getLlmFeedback(title: string, description: string) {
     
     // Log the feedback generation
     await logAction({
-      type: 'LLM_FEEDBACK',
+      type: 'SMART_FEEDBACK',
       proposalTitle: title,
       timestamp: Date.now()
     });
     
     return feedback;
   } catch (error) {
-    console.error('Error getting LLM feedback:', error);
-    throw new Error('Failed to get AI feedback');
+    console.error('Error getting smart feedback:', error);
+    throw new Error('Failed to get intelligent feedback');
   }
 }
 ```
@@ -1126,7 +1126,7 @@ To implement the services in a logical order that allows for incremental testing
 3. **Logging Service**: Implement logging functionality needed by other services
 4. **Proposal Service**: Implement core proposal management functionality
 5. **Voting Service**: Implement voting functionality that depends on proposals
-6. **AI Service**: Implement AI integration that depends on proposals and voting
+6. **Intelligent Service**: Implement smart features that depend on proposals and voting
 
 This order ensures that each service builds on the previously implemented services, allowing for incremental testing and development.
 

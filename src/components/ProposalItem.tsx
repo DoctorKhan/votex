@@ -339,7 +339,7 @@ export default function ProposalItem({
               <path d="M9 13v2"></path>
             </svg>
             <span className={`relative ${isExpanded ? 'text-base' : 'text-sm'}`}>
-              Get AI Feedback
+              Get Feedback
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white/30 animate-pulse"></span>
             </span>
           </button>
@@ -359,7 +359,7 @@ export default function ProposalItem({
                   <path d="M15 13v2"></path>
                   <path d="M9 13v2"></path>
                 </svg>
-                <h4 className="font-semibold psychedelic-text">AI Feedback</h4>
+                <h4 className="font-semibold psychedelic-text">Feedback</h4>
               </div>
               <p className="text-foreground/90">{proposal.llmFeedback}</p>
               

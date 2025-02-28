@@ -1,63 +1,45 @@
-import { createHash } from 'crypto';
-import { addOrUpdateItem, clearStore, getAllItems, generateId, LogEntity } from './db';
-
-/**
- * Action types that can be logged
- */
-export type LogAction = {
-  type: string;
-  userId?: string;
-  proposalId?: string;
-  title?: string;
-  proposalIds?: string[];
-  timestamp: number;
-  [key: string]: unknown;
-};
-
-/**
- * Log entry structure
- */
-export interface LogEntry {
-  id?: string;
-  action: LogAction;
-  timestamp: number;
-  previousHash: string | null;
-  hash?: string;
-}
-
-/**
- * Log verification result
- */
-export interface VerificationResult {
-  valid: boolean;
-  invalidEntries: number[];
-}
-
-/**
- * Clears all log entries (for testing purposes only)
- */
-export async function clearLogs(): Promise<void> {
-  await clearStore('logs');
-}
+import { db } from './db';
+import { id as generateId } from '@instantdb/react';
+import crypto from 'crypto';
 
 /**
  * Logs an action with a tamper-evident hash
  * @param action The action object to log
  * @returns Object with success status and log entry
  */
-export async function logAction(action: LogAction): Promise<{ success: boolean; logEntry?: LogEntry; error?: string }> {
+export interface LogAction {
+  type: string;
+  timestamp: number;
+  [key: string]: any;
+}
+
+export async function logAction(action: LogAction) {
   try {
-    // Get all existing logs to find the previous hash
-    const existingLogs = await getActionLog();
+    // Get the latest log entry to get the previous hash
+    const { data, error } = db.useQuery({
+      logs: {}
+    });
     
-    // Get the previous hash (if any)
-    const previousHash = existingLogs.length > 0 
-      ? existingLogs[existingLogs.length - 1].hash || null
-      : null;
+    if (error) {
+      throw error;
+    }
+    
+    // Find the latest log entry
+    let previousHash = null;
+    if (data?.logs) {
+      const logEntries = Object.values(data.logs) as Array<{
+        timestamp: number;
+        hash: string;
+      }>;
+      if (logEntries.length > 0) {
+        // Sort by timestamp descending
+        const sortedEntries = logEntries.sort((a, b) => b.timestamp - a.timestamp);
+        previousHash = sortedEntries[0].hash;
+      }
+    }
     
     // Create the log entry
-    const logEntry: LogEntry = {
-      id: generateId(),
+    const logEntry = {
       action,
       timestamp: Date.now(),
       previousHash
@@ -67,13 +49,16 @@ export async function logAction(action: LogAction): Promise<{ success: boolean; 
     const hash = generateHash(logEntry);
     
     // Add the hash to the log entry
-    const completeLogEntry: LogEntry = {
+    const completeLogEntry = {
       ...logEntry,
       hash
     };
     
-    // Store the log entry in IndexedDB
-    await addOrUpdateItem('logs', completeLogEntry as LogEntity);
+    // Store the log entry
+    const logId = generateId();
+    await db.transact(
+      db.tx.logs[logId].update(completeLogEntry)
+    );
     
     return {
       success: true,
@@ -93,22 +78,26 @@ export async function logAction(action: LogAction): Promise<{ success: boolean; 
  * @param logs Array of log entries to verify
  * @returns Object with validation result and invalid entries
  */
-export async function verifyLogIntegrity(logs?: LogEntry[]): Promise<VerificationResult> {
+export interface LogEntry {
+  action: LogAction;
+  timestamp: number;
+  previousHash: string | null;
+  hash: string;
+  [key: string]: any;
+}
+
+export async function verifyLogIntegrity(logs: LogEntry[]) {
   try {
-    // If logs are not provided, get them from the database
-    const logsToVerify = logs || await getActionLog();
-    
     const invalidEntries: number[] = [];
     
     // Sort logs by timestamp
-    const sortedLogs = [...logsToVerify].sort((a, b) => a.timestamp - b.timestamp);
+    const sortedLogs = [...logs].sort((a, b) => a.timestamp - b.timestamp);
     
     for (let i = 0; i < sortedLogs.length; i++) {
       const log = sortedLogs[i];
       
       // Verify the hash
       const logWithoutHash = {
-        id: log.id,
         action: log.action,
         timestamp: log.timestamp,
         previousHash: log.previousHash
@@ -144,13 +133,30 @@ export async function verifyLogIntegrity(logs?: LogEntry[]): Promise<Verificatio
  * Retrieves the action log
  * @returns Array of log entries
  */
-export async function getActionLog(): Promise<LogEntry[]> {
+export async function getActionLog() {
   try {
-    const logs = await getAllItems<LogEntry>('logs');
-    return logs;
+    const { data, error } = db.useQuery({
+      logs: {}
+    });
+    
+    if (error) {
+      throw error;
+    }
+    
+    if (!data?.logs) {
+      return [];
+    }
+    
+    // Convert to array and sort by timestamp
+    return Object.entries(data.logs)
+      .map(([id, log]: [string, any]) => ({
+        id,
+        ...(log as LogEntry)
+      }))
+      .sort((a, b) => a.timestamp - b.timestamp);
   } catch (error) {
-    console.error('Error getting action log:', error);
-    return [];
+    console.error('Error retrieving action log:', error);
+    throw new Error('Failed to retrieve action log');
   }
 }
 
@@ -159,7 +165,7 @@ export async function getActionLog(): Promise<LogEntry[]> {
  * @param logEntry The log entry to hash
  * @returns Hash string
  */
-function generateHash(logEntry: Omit<LogEntry, 'hash'>): string {
+function generateHash(logEntry: Record<string, unknown>): string {
   const data = JSON.stringify(logEntry);
-  return createHash('sha256').update(data).digest('hex');
+  return crypto.createHash('sha256').update(data).digest('hex');
 }

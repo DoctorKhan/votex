@@ -1,40 +1,54 @@
-import { logAction, verifyLogIntegrity, getActionLog, clearLogs, LogAction, LogEntry } from '../../lib/loggingService';
-import { addOrUpdateItem, getAllItems } from '../../lib/db';
+import { logAction, verifyLogIntegrity, getActionLog } from '../../lib/loggingService';
+import { db } from '../../lib/db';
+import crypto from 'crypto';
 
-// Mock the db module
-jest.mock('../../lib/db', () => ({
-  addOrUpdateItem: jest.fn().mockResolvedValue('mock-id'),
-  getAllItems: jest.fn(),
-  clearStore: jest.fn().mockResolvedValue(undefined),
-  generateId: jest.fn().mockReturnValue('mock-id'),
-}));
-
-// Mock the crypto module to control hash generation
+// Mock crypto module
 jest.mock('crypto', () => ({
   createHash: jest.fn().mockReturnValue({
     update: jest.fn().mockReturnThis(),
-    digest: jest.fn().mockReturnValue('mock-hash'),
-  }),
+    digest: jest.fn().mockReturnValue('mocked-hash')
+  })
+}));
+
+jest.mock('../../lib/db', () => ({
+  useQuery: jest.fn(),
+  transact: jest.fn(),
+  tx: {
+    logs: {
+      'mock-log-id': {
+        update: jest.fn()
+      }
+    }
+  }
+}));
+
+jest.mock('@instantdb/react', () => ({
+  id: jest.fn().mockReturnValue('mock-log-id')
 }));
 
 describe('Logging Service', () => {
-  beforeEach(async () => {
-    // Clear the log entries before each test
-    await clearLogs();
-    
-    // Reset the mock implementation
-    (getAllItems as jest.Mock).mockReset();
-    (getAllItems as jest.Mock).mockResolvedValue([]);
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('logAction', () => {
     test('should log an action with a hash', async () => {
       // Arrange
-      const mockAction: LogAction = {
-        type: 'TEST',
+      const mockAction = {
+        type: 'VOTE',
         userId: 'user-123',
+        proposalId: 'proposal-456',
         timestamp: Date.now()
       };
+      
+      // Mock the database query to return no previous logs
+      (db.useQuery as jest.Mock).mockReturnValue({
+        data: { logs: {} },
+        error: null,
+        isLoading: false
+      });
+      
+      (db.transact as jest.Mock).mockResolvedValue({});
       
       // Act
       const result = await logAction(mockAction);
@@ -45,252 +59,253 @@ describe('Logging Service', () => {
       expect(result.logEntry).toHaveProperty('hash');
       expect(result.logEntry).toHaveProperty('previousHash', null);
       expect(result.logEntry).toHaveProperty('action', mockAction);
+      expect(db.transact).toHaveBeenCalled();
     });
 
-    test('should link log entries with previous hash', async () => {
-      // Reset the mock before this test
-      (addOrUpdateItem as jest.Mock).mockClear();
-      
+    test('should include previous hash when logs exist', async () => {
       // Arrange
-      const mockAction1: LogAction = {
-        type: 'TEST_1',
+      const mockAction = {
+        type: 'VOTE',
         userId: 'user-123',
+        proposalId: 'proposal-456',
         timestamp: Date.now()
       };
       
-      const mockAction2: LogAction = {
-        type: 'TEST_2',
-        userId: 'user-123',
-        timestamp: Date.now() + 100
-      };
+      const previousHash = 'previous-hash-123';
       
-      // Mock the first log entry
-      const mockLogEntry1: LogEntry = {
-        id: 'mock-id-1',
-        action: mockAction1,
-        timestamp: Date.now(),
-        previousHash: null,
-        hash: 'mock-hash-1'
-      };
+      // Mock the database query to return a previous log
+      (db.useQuery as jest.Mock).mockReturnValue({
+        data: {
+          logs: {
+            'log-1': {
+              hash: previousHash,
+              timestamp: Date.now() - 1000
+            }
+          }
+        },
+        error: null,
+        isLoading: false
+      });
       
-      // Set up the mock to return the first log entry
-      (getAllItems as jest.Mock).mockResolvedValueOnce([mockLogEntry1]);
+      (db.transact as jest.Mock).mockResolvedValue({});
       
       // Act
-      const result1 = await logAction(mockAction1);
-      const result2 = await logAction(mockAction2);
+      const result = await logAction(mockAction);
       
       // Assert
-      expect(result1.logEntry?.hash).toBeDefined();
-      expect(result2.success).toBe(true);
-      expect(addOrUpdateItem).toHaveBeenCalledTimes(2);
+      expect(result).toHaveProperty('success', true);
+      expect(result.logEntry).toHaveProperty('previousHash', previousHash);
+      expect(db.transact).toHaveBeenCalled();
+    });
+
+    test('should handle database errors gracefully', async () => {
+      // Arrange
+      const mockAction = {
+        type: 'VOTE',
+        userId: 'user-123',
+        proposalId: 'proposal-456',
+        timestamp: Date.now()
+      };
+      
+      // Mock the database query to return an error
+      (db.useQuery as jest.Mock).mockReturnValue({
+        data: null,
+        error: new Error('Database error'),
+        isLoading: false
+      });
+      
+      // Act
+      const result = await logAction(mockAction);
+      
+      // Assert
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error', 'Failed to log action');
     });
   });
 
   describe('verifyLogIntegrity', () => {
     test('should verify log integrity for valid logs', async () => {
-      // Mock implementation of verifyLogIntegrity for this test only
-      const mockVerifyLogIntegrity = jest.fn().mockResolvedValue({
+      // Arrange
+      const mockLogs = [
+        {
+          hash: 'hash1',
+          previousHash: null,
+          action: { type: 'INIT', timestamp: Date.now() - 1000 },
+          timestamp: Date.now() - 1000
+        },
+        {
+          hash: 'hash2',
+          previousHash: 'hash1',
+          action: { type: 'VOTE', userId: 'user-1', proposalId: 'proposal-1', timestamp: Date.now() },
+          timestamp: Date.now()
+        }
+      ];
+      
+      // Mock the hash generation to return expected values
+      const mockDigest = jest.fn()
+        .mockReturnValueOnce('hash1')
+        .mockReturnValueOnce('hash2');
+      
+      (crypto.createHash as jest.Mock).mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        digest: mockDigest
+      });
+      
+      // Act
+      const result = await verifyLogIntegrity(mockLogs);
+      
+      // Assert
+      expect(result).toEqual({
         valid: true,
         invalidEntries: []
       });
-      
-      // Save original function
-      const originalVerifyLogIntegrity = verifyLogIntegrity;
-      
-      // Replace with mock for this test
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (global as unknown as Record<string, any>).verifyLogIntegrity = mockVerifyLogIntegrity;
-      
-      try {
-        // Arrange
-        const mockAction1: LogAction = {
-          type: 'VERIFY_1',
-          userId: 'user-1',
-          timestamp: Date.now()
-        };
-        
-        const mockAction2: LogAction = {
-          type: 'VERIFY_2',
-          userId: 'user-2',
-          timestamp: Date.now() + 100
-        };
-        
-        // Act
-        await logAction(mockAction1);
-        await logAction(mockAction2);
-        
-        // Skip the actual verification and use our mock result
-        const result = {
-          valid: true,
-          invalidEntries: []
-        };
-        
-        // Assert
-        expect(result.valid).toBe(true);
-        expect(result.invalidEntries).toEqual([]);
-      } finally {
-        // Restore original function
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (global as unknown as Record<string, any>).verifyLogIntegrity = originalVerifyLogIntegrity;
-      }
     });
 
     test('should detect tampered logs', async () => {
       // Arrange
-      const mockAction1: LogAction = {
-        type: 'TAMPER_1',
-        userId: 'user-1',
-        timestamp: Date.now()
-      };
-      
-      const mockAction2: LogAction = {
-        type: 'TAMPER_2',
-        userId: 'user-2',
-        timestamp: Date.now() + 100
-      };
-      
-      const mockLogEntry1: LogEntry = {
-        id: 'mock-id-1',
-        action: mockAction1,
-        timestamp: Date.now(),
-        previousHash: null,
-        hash: 'mock-hash-1'
-      };
-      
-      const mockLogEntry2: LogEntry = {
-        id: 'mock-id-2',
-        action: mockAction2,
-        timestamp: Date.now() + 100,
-        previousHash: 'mock-hash-1',
-        hash: 'mock-hash-2'
-      };
-      
-      // Create a tampered version of the logs
-      const tamperedLogs: LogEntry[] = [
-        mockLogEntry1,
+      const mockLogs = [
         {
-          ...mockLogEntry2,
-          action: {
-            ...mockLogEntry2.action,
-            userId: 'tampered-user'
-          }
+          hash: 'hash1',
+          previousHash: null,
+          action: { type: 'INIT', timestamp: Date.now() - 2000 },
+          timestamp: Date.now() - 2000
+        },
+        {
+          hash: 'hash2',
+          previousHash: 'hash1',
+          action: { type: 'VOTE', userId: 'user-1', proposalId: 'proposal-1', timestamp: Date.now() - 1000 },
+          timestamp: Date.now() - 1000
+        },
+        {
+          hash: 'tampered-hash', // This hash doesn't match the content
+          previousHash: 'hash2',
+          action: { type: 'VOTE', userId: 'user-2', proposalId: 'proposal-2', timestamp: Date.now() },
+          timestamp: Date.now()
         }
       ];
       
+      // Mock the hash generation to return expected values
+      const mockDigest = jest.fn()
+        .mockReturnValueOnce('hash1')
+        .mockReturnValueOnce('hash2')
+        .mockReturnValueOnce('correct-hash'); // Different from 'tampered-hash'
+      
+      (crypto.createHash as jest.Mock).mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        digest: mockDigest
+      });
+      
       // Act
-      const result = await verifyLogIntegrity(tamperedLogs);
+      const result = await verifyLogIntegrity(mockLogs);
       
       // Assert
-      expect(result.valid).toBe(false);
-      expect(result.invalidEntries.length).toBeGreaterThan(0);
+      expect(result).toEqual({
+        valid: false,
+        invalidEntries: [2] // The third entry (index 2) is invalid
+      });
     });
 
     test('should detect broken chain in logs', async () => {
       // Arrange
-      const mockAction1: LogAction = {
-        type: 'CHAIN_1',
-        userId: 'user-1',
-        timestamp: Date.now()
-      };
-      
-      const mockAction2: LogAction = {
-        type: 'CHAIN_2',
-        userId: 'user-2',
-        timestamp: Date.now() + 100
-      };
-      
-      const mockAction3: LogAction = {
-        type: 'CHAIN_3',
-        userId: 'user-3',
-        timestamp: Date.now() + 200
-      };
-      
-      const mockLogEntry1: LogEntry = {
-        id: 'mock-id-1',
-        action: mockAction1,
-        timestamp: Date.now(),
-        previousHash: null,
-        hash: 'mock-hash-1'
-      };
-      
-      const mockLogEntry2: LogEntry = {
-        id: 'mock-id-2',
-        action: mockAction2,
-        timestamp: Date.now() + 100,
-        previousHash: 'mock-hash-1',
-        hash: 'mock-hash-2'
-      };
-      
-      const mockLogEntry3: LogEntry = {
-        id: 'mock-id-3',
-        action: mockAction3,
-        timestamp: Date.now() + 200,
-        previousHash: 'mock-hash-2',
-        hash: 'mock-hash-3'
-      };
-      
-      // Create a broken chain version of the logs
-      const brokenChainLogs: LogEntry[] = [
-        mockLogEntry1,
-        mockLogEntry2,
+      const mockLogs = [
         {
-          ...mockLogEntry3,
-          previousHash: 'invalid-hash'
+          hash: 'hash1',
+          previousHash: null,
+          action: { type: 'INIT', timestamp: Date.now() - 2000 },
+          timestamp: Date.now() - 2000
+        },
+        {
+          hash: 'hash2',
+          previousHash: 'wrong-previous-hash', // Should be 'hash1'
+          action: { type: 'VOTE', userId: 'user-1', proposalId: 'proposal-1', timestamp: Date.now() - 1000 },
+          timestamp: Date.now() - 1000
         }
       ];
       
+      // Mock the hash generation to return expected values
+      const mockDigest = jest.fn()
+        .mockReturnValueOnce('hash1')
+        .mockReturnValueOnce('hash2');
+      
+      (crypto.createHash as jest.Mock).mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        digest: mockDigest
+      });
+      
       // Act
-      const result = await verifyLogIntegrity(brokenChainLogs);
+      const result = await verifyLogIntegrity(mockLogs);
       
       // Assert
-      expect(result.valid).toBe(false);
-      expect(result.invalidEntries).toContain(2); // The third entry (index 2) should be invalid
+      expect(result).toEqual({
+        valid: false,
+        invalidEntries: [1] // The second entry (index 1) is invalid
+      });
     });
   });
 
   describe('getActionLog', () => {
-    test('should retrieve the action log', async () => {
+    test('should retrieve all log entries', async () => {
       // Arrange
-      const mockAction1: LogAction = {
-        type: 'GET_1',
-        userId: 'user-1',
-        timestamp: Date.now()
+      const mockLogs = {
+        'log-1': {
+          action: { type: 'INIT', timestamp: Date.now() - 2000 },
+          timestamp: Date.now() - 2000,
+          hash: 'hash1',
+          previousHash: null
+        },
+        'log-2': {
+          action: { type: 'VOTE', userId: 'user-1', proposalId: 'proposal-1', timestamp: Date.now() - 1000 },
+          timestamp: Date.now() - 1000,
+          hash: 'hash2',
+          previousHash: 'hash1'
+        }
       };
       
-      const mockAction2: LogAction = {
-        type: 'GET_2',
-        userId: 'user-2',
-        timestamp: Date.now() + 100
-      };
-      
-      const mockLogEntry1: LogEntry = {
-        id: 'mock-id-1',
-        action: mockAction1,
-        timestamp: Date.now(),
-        previousHash: null,
-        hash: 'mock-hash-1'
-      };
-      
-      const mockLogEntry2: LogEntry = {
-        id: 'mock-id-2',
-        action: mockAction2,
-        timestamp: Date.now() + 100,
-        previousHash: 'mock-hash-1',
-        hash: 'mock-hash-2'
-      };
-      
-      // Set up the mock to return the log entries
-      (getAllItems as jest.Mock).mockResolvedValueOnce([mockLogEntry1, mockLogEntry2]);
+      // Mock the database query to return logs
+      (db.useQuery as jest.Mock).mockReturnValue({
+        data: { logs: mockLogs },
+        error: null,
+        isLoading: false
+      });
       
       // Act
-      const log = await getActionLog();
+      const result = await getActionLog();
       
       // Assert
-      expect(Array.isArray(log)).toBe(true);
-      expect(log.length).toBe(2);
-      expect(log[0].action.type).toBe('GET_1');
-      expect(log[1].action.type).toBe('GET_2');
+      expect(result).toHaveLength(2);
+      expect(result[0]).toHaveProperty('id', 'log-1');
+      expect(result[1]).toHaveProperty('id', 'log-2');
+      // Logs should be sorted by timestamp
+      expect(result[0].timestamp).toBeLessThan(result[1].timestamp);
+    });
+
+    test('should return empty array when no logs exist', async () => {
+      // Arrange
+      // Mock the database query to return no logs
+      (db.useQuery as jest.Mock).mockReturnValue({
+        data: { logs: {} },
+        error: null,
+        isLoading: false
+      });
+      
+      // Act
+      const result = await getActionLog();
+      
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    test('should handle database errors gracefully', async () => {
+      // Arrange
+      // Mock the database query to return an error
+      (db.useQuery as jest.Mock).mockReturnValue({
+        data: null,
+        error: new Error('Database error'),
+        isLoading: false
+      });
+      
+      // Act & Assert
+      await expect(getActionLog()).rejects.toThrow('Failed to retrieve action log');
     });
   });
 });

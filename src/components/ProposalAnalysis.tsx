@@ -5,6 +5,19 @@ import { Proposal, Analysis, Revision } from './ProposalItem';
 import { initDB } from '../lib/db';
 import { ProposalService } from '../lib/proposalService';
 
+// Helper function to convert timeframe value to a human-readable label
+const getTimeframeLabel = (timeframe: number): string => {
+  if (timeframe < 0.25) {
+    return 'Short-term: < 3 months';
+  } else if (timeframe < 0.5) {
+    return 'Medium-term: 3-6 months';
+  } else if (timeframe < 0.75) {
+    return 'Long-term: 6-12 months';
+  } else {
+    return 'Extended: > 1 year';
+  }
+};
+
 interface ProposalAnalysisProps {
   proposal: Proposal;
   currentRevision: Revision | null;
@@ -241,6 +254,18 @@ export default function ProposalAnalysis({
           
           {analysis && (
             <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-4 pulsate-glow rainbow-border">
+              <div className="flex justify-end mb-2">
+                <button
+                  onClick={handleRequestAnalysis}
+                  className="py-1 px-3 rounded-lg bg-accent/20 hover:bg-accent/30 text-accent text-xs transition-all flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                    <path d="M3 3v5h5"></path>
+                  </svg>
+                  Regenerate Analysis
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
@@ -287,10 +312,13 @@ export default function ProposalAnalysis({
                     <span className="text-sm">{Math.round(analysis.timeframe * 100)}%</span>
                   </div>
                   <div className="h-2 bg-background rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary/70"
+                    <div
+                      className="h-full bg-red-500"
                       style={{ width: `${analysis.timeframe * 100}%` }}
                     ></div>
+                  </div>
+                  <div className="text-xs text-right text-foreground/70">
+                    {getTimeframeLabel(analysis.timeframe)}
                   </div>
                 </div>
               </div>

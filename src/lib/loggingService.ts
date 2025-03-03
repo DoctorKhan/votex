@@ -21,7 +21,7 @@ export async function logAction(action: LogAction) {
     let previousHash = null;
     if (logs.length > 0) {
       // Sort by timestamp descending
-      const sortedEntries = logs.sort((a, b) => b.timestamp - a.timestamp);
+      const sortedEntries = logs.sort((a: LogEntry, b: LogEntry) => b.timestamp - a.timestamp);
       previousHash = sortedEntries[0].hash;
     }
     
@@ -127,7 +127,7 @@ export async function getActionLog() {
     const logs = await getAllItems<LogEntry & { id: string }>('logs');
     
     // Sort by timestamp
-    return logs.sort((a, b) => a.timestamp - b.timestamp);
+    return logs.sort((a: LogEntry & { id: string }, b: LogEntry & { id: string }) => a.timestamp - b.timestamp);
   } catch (error) {
     console.error('Error retrieving action log:', error);
     throw new Error('Failed to retrieve action log');

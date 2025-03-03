@@ -52,7 +52,35 @@ export interface RevisionEntity {
   proposalId: string;
   description: string;
   timestamp: number;
-  analysis?: Record<string, unknown>;
+  analysis?: {
+    feasibility: number;
+    impact: number;
+    cost: number;
+    timeframe: number;
+    risks: string[];
+    benefits: string[];
+    recommendations: string;
+    stakeholderImpact?: {
+      group: string;
+      impact: number;
+      description: string;
+    }[];
+    resourceRequirements?: {
+      resource: string;
+      amount: string;
+      priority: 'low' | 'medium' | 'high';
+    }[];
+    securityImplications?: {
+      concern: string;
+      severity: 'low' | 'medium' | 'high';
+      mitigation: string;
+    }[];
+    implementationSteps?: {
+      step: string;
+      timeframe: string;
+      dependencies: string[];
+    }[];
+  };
 }
 
 /**
@@ -165,9 +193,14 @@ export class ProposalService {
    * Add a revision to a proposal
    * @param proposalId The ID of the proposal to revise
    * @param revisionText The text of the revision
+   * @param analysis Optional analysis for this revision
    * @returns Promise that resolves with the created revision
    */
-  async addRevision(proposalId: string, revisionText: string): Promise<RevisionEntity> {
+  async addRevision(
+    proposalId: string, 
+    revisionText: string, 
+    analysis?: RevisionEntity['analysis']
+  ): Promise<RevisionEntity> {
     if (!revisionText || revisionText.trim() === '') {
       throw new Error('Revision text cannot be empty');
     }
@@ -184,7 +217,8 @@ export class ProposalService {
       id: revisionId,
       proposalId,
       description: revisionText,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      analysis: analysis
     };
     
     // Add the revision to the proposal
@@ -212,6 +246,16 @@ export class ProposalService {
     const allRevisions = await getAllItems<RevisionEntity>('revisions');
     return allRevisions.filter(revision => revision.proposalId === proposalId)
       .sort((a, b) => a.timestamp - b.timestamp); // Sort by timestamp ascending
+  }
+  
+  /**
+   * Get a specific revision by ID
+   * @param revisionId The ID of the revision to retrieve
+   * @returns Promise that resolves with the revision or null if not found
+   */
+  async getRevision(revisionId: string): Promise<RevisionEntity | null> {
+    const allRevisions = await getAllItems<RevisionEntity>('revisions');
+    return allRevisions.find(revision => revision.id === revisionId) || null;
   }
   
   /**

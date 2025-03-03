@@ -38,9 +38,9 @@ export type Analysis = {
 
 // Define the Revision type with optional analysis
 export type Revision = {
-  id: number;
+  id: string;
   description: string;
-  timestamp: string;
+  timestamp: string | number;
   analysis?: Analysis;
 };
 
@@ -79,9 +79,9 @@ export default function ProposalItem({
   
   // Define a type for our revision history items
   type RevisionHistoryItem = {
-    id: number;
+    id: string;
     description: string;
-    timestamp: string;
+    timestamp: string | number;
     analysis?: Analysis;
   };
 
@@ -134,7 +134,7 @@ export default function ProposalItem({
     
     // Create a new revision history item
     const newRevisionItem: RevisionHistoryItem = {
-      id: Date.now(), // Use timestamp as a temporary ID
+      id: Date.now().toString(), // Use timestamp as a temporary ID, but as string
       description: newRevision,
       timestamp: new Date().toISOString(),
       analysis: undefined // New revisions start with no analysis
@@ -183,7 +183,7 @@ export default function ProposalItem({
       
       // Create a new revision history item for the AI-generated revision
       const aiRevisionItem: RevisionHistoryItem = {
-        id: Date.now(), // Use timestamp as a temporary ID
+        id: Date.now().toString(), // Use timestamp as a temporary ID, but as string
         description: data.revisedProposal,
         timestamp: new Date().toISOString(),
         analysis: undefined // New revisions start with no analysis
@@ -371,20 +371,18 @@ export default function ProposalItem({
                   className={`py-2 px-4 rounded-lg text-white font-medium transition-all shadow-sm flex items-center ${
                     isGeneratingRevision
                       ? 'bg-gray-400 cursor-not-allowed opacity-70'
-                      : 'bg-accent hover:bg-accent-hover hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 trippy-hover'
+                      : 'bg-secondary hover:bg-secondary-hover hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 trippy-hover'
                   }`}
                 >
                   {isGeneratingRevision ? (
                     <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin mr-2"></div>
                   ) : (
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 8V4H8"></path>
-                      <rect width="16" height="12" x="4" y="8" rx="2"></rect>
-                      <path d="M2 14h2"></path>
-                      <path d="M20 14h2"></path>
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                     </svg>
                   )}
-                  Auto-Revise
+                  Revise Based on Feedback
                 </button>
                 
                 <div className="flex rounded-lg overflow-hidden border border-border/60">

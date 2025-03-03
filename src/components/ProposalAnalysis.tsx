@@ -31,14 +31,22 @@ export default function ProposalAnalysis({
   onAddRevision,
   onAnalysisGenerated
 }: ProposalAnalysisProps) {
-  // Initialize analysis with the current revision's analysis if it exists
-  const [analysis, setAnalysis] = useState<Analysis | null>(
-    currentRevision?.analysis || null
-  );
+  // State for the analysis
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  
+  // Update analysis when currentRevision changes
+  useEffect(() => {
+    if (currentRevision?.analysis) {
+      setAnalysis(currentRevision.analysis);
+      setIsExpanded(true); // Auto-expand when analysis is available
+    } else {
+      setAnalysis(null);
+    }
+  }, [currentRevision]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Automatically expand the analysis section if an analysis already exists
-  const [isExpanded, setIsExpanded] = useState(!!currentRevision?.analysis);
+  // Automatically expand the analysis section if analysis is loaded
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isGeneratingRevision, setIsGeneratingRevision] = useState(false);
   const [proposalService, setProposalService] = useState<ProposalService | null>(null);
 
@@ -137,6 +145,7 @@ export default function ProposalAnalysis({
   useEffect(() => {
     // If we have a current revision but no analysis, automatically request one
     if (currentRevision && !currentRevision.analysis && !analysis && !isLoading) {
+      console.log('Auto-generating analysis for revision:', currentRevision.id);
       // Use a small delay to avoid immediate analysis generation when switching revisions
       const timer = setTimeout(() => {
         handleRequestAnalysis();
@@ -254,16 +263,16 @@ export default function ProposalAnalysis({
           
           {analysis && (
             <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-4 pulsate-glow rainbow-border">
-              <div className="flex justify-end mb-2">
+              <div className="flex justify-end mb-3">
                 <button
                   onClick={handleRequestAnalysis}
-                  className="py-1 px-3 rounded-lg bg-accent/20 hover:bg-accent/30 text-accent text-xs transition-all flex items-center"
+                  className="py-2 px-4 rounded-lg bg-primary text-white text-sm font-medium transition-all flex items-center hover:bg-primary-hover shadow-sm hover:shadow-md"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
                     <path d="M3 3v5h5"></path>
                   </svg>
-                  Regenerate Analysis
+                  Reanalyze This Revision
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-4 mb-4">
@@ -392,7 +401,7 @@ export default function ProposalAnalysis({
                           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
                       )}
-                      Auto-Revise Based on Recommendations
+                      Apply Recommendations
                     </button>
                   </div>
                 )}

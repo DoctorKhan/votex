@@ -1,5 +1,4 @@
-import { db } from './db';
-import { id as generateId } from '@instantdb/react';
+import { generateId, getAllItems, addOrUpdateItem } from './db';
 import crypto from 'crypto';
 
 /**
@@ -10,32 +9,20 @@ import crypto from 'crypto';
 export interface LogAction {
   type: string;
   timestamp: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export async function logAction(action: LogAction) {
   try {
     // Get the latest log entry to get the previous hash
-    const { data, error } = db.useQuery({
-      logs: {}
-    });
-    
-    if (error) {
-      throw error;
-    }
+    const logs = await getAllItems<LogEntry>('logs');
     
     // Find the latest log entry
     let previousHash = null;
-    if (data?.logs) {
-      const logEntries = Object.values(data.logs) as Array<{
-        timestamp: number;
-        hash: string;
-      }>;
-      if (logEntries.length > 0) {
-        // Sort by timestamp descending
-        const sortedEntries = logEntries.sort((a, b) => b.timestamp - a.timestamp);
-        previousHash = sortedEntries[0].hash;
-      }
+    if (logs.length > 0) {
+      // Sort by timestamp descending
+      const sortedEntries = logs.sort((a, b) => b.timestamp - a.timestamp);
+      previousHash = sortedEntries[0].hash;
     }
     
     // Create the log entry
@@ -56,9 +43,11 @@ export async function logAction(action: LogAction) {
     
     // Store the log entry
     const logId = generateId();
-    await db.transact(
-      db.tx.logs[logId].update(completeLogEntry)
-    );
+    const logEntryWithId = {
+      id: logId,
+      ...completeLogEntry
+    };
+    await addOrUpdateItem('logs', logEntryWithId);
     
     return {
       success: true,
@@ -83,7 +72,7 @@ export interface LogEntry {
   timestamp: number;
   previousHash: string | null;
   hash: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export async function verifyLogIntegrity(logs: LogEntry[]) {
@@ -135,25 +124,10 @@ export async function verifyLogIntegrity(logs: LogEntry[]) {
  */
 export async function getActionLog() {
   try {
-    const { data, error } = db.useQuery({
-      logs: {}
-    });
+    const logs = await getAllItems<LogEntry & { id: string }>('logs');
     
-    if (error) {
-      throw error;
-    }
-    
-    if (!data?.logs) {
-      return [];
-    }
-    
-    // Convert to array and sort by timestamp
-    return Object.entries(data.logs)
-      .map(([id, log]: [string, any]) => ({
-        id,
-        ...(log as LogEntry)
-      }))
-      .sort((a, b) => a.timestamp - b.timestamp);
+    // Sort by timestamp
+    return logs.sort((a, b) => a.timestamp - b.timestamp);
   } catch (error) {
     console.error('Error retrieving action log:', error);
     throw new Error('Failed to retrieve action log');

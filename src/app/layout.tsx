@@ -4,6 +4,7 @@ import "./globals.css";
 import "../styles/global.css";
 import Navigation from "../components/Navigation";
 import IndexedDBProvider from "../components/IndexedDBProvider";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI-Enhanced Voting System",
+  title: "Votex - AI-Enhanced Voting System",
   description: "A collaborative platform where humans and AI can propose and vote on ideas",
   icons: {
     icon: "/favicon.ico",
@@ -41,14 +42,16 @@ export default function RootLayout({
           fontFamily: "var(--font-geist-sans)",
         }}
       >
-        <IndexedDBProvider>
-          <div className="min-h-screen flex flex-col">
-            <Navigation />
-            <div className="flex-grow">
-              {children}
+        <ErrorBoundary>
+          <IndexedDBProvider>
+            <div className="min-h-screen flex flex-col">
+              <Navigation />
+              <div className="flex-grow">
+                {children}
+              </div>
             </div>
-          </div>
-        </IndexedDBProvider>
+          </IndexedDBProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

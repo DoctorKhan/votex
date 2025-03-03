@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withErrorHandler } from '@/utils/apiErrorHandler';
 
 // GROQ API configuration
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
@@ -11,6 +12,10 @@ if (!GROQ_API_KEY) {
 
 // Generate a revised proposal using the GROQ API
 async function generateRevisedProposal(originalDescription: string, feedback: string): Promise<string> {
+  if (!GROQ_API_KEY) {
+    throw new Error('GROQ API key is not configured. Please check your environment variables.');
+  }
+
   try {
     const response = await fetch(GROQ_API_URL, {
       method: 'POST',
@@ -61,10 +66,15 @@ async function generateRevisedProposal(originalDescription: string, feedback: st
     });
 
     if (!response.ok) {
-      throw new Error(`GROQ API error: ${response.status}`);
+      throw new Error(`GROQ API error: ${response.status} - ${await response.text()}`);
     }
 
     const data = await response.json();
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      throw new Error('Invalid response from GROQ API: missing choices');
+    }
+    
     let revisedProposal = data.choices[0].message.content.trim();
     
     // Remove common prefixes that might be included despite instructions
@@ -89,31 +99,28 @@ async function generateRevisedProposal(originalDescription: string, feedback: st
     return revisedProposal;
   } catch (error) {
     console.error('Error generating revised proposal:', error);
-    // Return a fallback message if the API call fails
-    return "Unable to generate a revised proposal at this time. Please try again later.";
+    throw new Error(`Failed to generate revised proposal: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { originalDescription, feedback } = body;
-    
-    if (!originalDescription || !feedback) {
-      return NextResponse.json(
-        { error: 'Missing required fields: originalDescription and feedback' },
-        { status: 400 }
-      );
-    }
-    
-    const revisedProposal = await generateRevisedProposal(originalDescription, feedback);
-    
-    return NextResponse.json({ revisedProposal });
-  } catch (error) {
-    console.error('Error generating revised proposal:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate revised proposal' },
-      { status: 500 }
-    );
+async function handlePost(request: NextRequest) {
+  const body = await request.json().catch(() => {
+    throw new Error('Invalid request body: Failed to parse JSON');
+  });
+  
+  const { originalDescription, feedback } = body;
+  
+  if (!originalDescription) {
+    throw new Error('Missing required field: originalDescription');
   }
+  
+  if (!feedback) {
+    throw new Error('Missing required field: feedback');
+  }
+  
+  const revisedProposal = await generateRevisedProposal(originalDescription, feedback);
+  
+  return NextResponse.json({ revisedProposal });
 }
+
+export const POST = withErrorHandler(handlePost);

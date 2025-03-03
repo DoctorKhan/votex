@@ -13,6 +13,14 @@ export default function ProposalList() {
   const [userVotes, setUserVotes] = useState<Record<string, boolean>>({});
   const [proposalService, setProposalService] = useState<ProposalService | null>(null);
   const [userId, setUserId] = useState<string>('');
+  
+  // State variables for create initiative modal
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newInitiativeTitle, setNewInitiativeTitle] = useState('');
+  const [newInitiativeDescription, setNewInitiativeDescription] = useState('');
+  const [isTitleError, setIsTitleError] = useState(false);
+  const [isDescriptionError, setIsDescriptionError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize the database and load proposals
   useEffect(() => {
@@ -176,6 +184,37 @@ export default function ProposalList() {
     }
   };
 
+  // Handle create initiative form submission
+  const handleSubmitInitiative = async () => {
+    // Validate inputs
+    let hasError = false;
+    if (!newInitiativeTitle.trim()) {
+      setIsTitleError(true);
+      hasError = true;
+    }
+    if (!newInitiativeDescription.trim()) {
+      setIsDescriptionError(true);
+      hasError = true;
+    }
+    
+    if (hasError) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      await handleCreateProposal(newInitiativeTitle, newInitiativeDescription);
+      // Reset form and close modal on success
+      setNewInitiativeTitle('');
+      setNewInitiativeDescription('');
+      setIsCreateModalOpen(false);
+    } catch (err) {
+      console.error('Error creating initiative:', err);
+      setError('Failed to create initiative. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="w-full flex justify-center items-center py-12 animate-in">
@@ -199,19 +238,13 @@ export default function ProposalList() {
       </div>
     );
   }
-
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold psychedelic-text">Initiatives</h2>
         <button
-          onClick={() => {
-            const title = prompt('Enter initiative title:');
-            const description = prompt('Enter initiative description:');
-            if (title && description) {
-              handleCreateProposal(title, description);
-            }
-          }}
+          onClick={() => setIsCreateModalOpen(true)}
           className="py-2 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 flex items-center"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -221,6 +254,114 @@ export default function ProposalList() {
           Create Initiative
         </button>
       </div>
+      
+      {/* Create Initiative Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in">
+          <div className="bg-card w-full max-w-lg rounded-xl shadow-xl border border-border/60 p-6 mx-4 md:mx-0 animate-in fade-in slide-in-from-bottom-4">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-primary">Create New Initiative</h3>
+              <button
+                onClick={() => setIsCreateModalOpen(false)}
+                className="rounded-full p-1.5 text-foreground/70 hover:text-foreground bg-background/50 hover:bg-background transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18"></path>
+                  <path d="m6 6 12 12"></path>
+                </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="initiative-title" className="block text-sm font-medium mb-1.5 text-foreground/90">
+                  Title <span className="text-danger">*</span>
+                </label>
+                <input
+                  id="initiative-title"
+                  type="text"
+                  value={newInitiativeTitle}
+                  onChange={(e) => {
+                    setNewInitiativeTitle(e.target.value);
+                    setIsTitleError(false);
+                  }}
+                  placeholder="Enter a clear, concise title"
+                  className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors 
+                    ${isTitleError ? 'border-danger text-danger' : 'border-border/60 text-foreground'}`}
+                />
+                {isTitleError && (
+                  <p className="text-danger text-sm mt-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Title is required
+                  </p>
+                )}
+              </div>
+              
+              <div>
+                <label htmlFor="initiative-description" className="block text-sm font-medium mb-1.5 text-foreground/90">
+                  Description <span className="text-danger">*</span>
+                </label>
+                <textarea
+                  id="initiative-description"
+                  value={newInitiativeDescription}
+                  onChange={(e) => {
+                    setNewInitiativeDescription(e.target.value);
+                    setIsDescriptionError(false);
+                  }}
+                  placeholder="Describe your initiative in detail. What problem does it solve? Why is it important?"
+                  rows={5}
+                  className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors 
+                    ${isDescriptionError ? 'border-danger text-danger' : 'border-border/60 text-foreground'}`}
+                />
+                {isDescriptionError && (
+                  <p className="text-danger text-sm mt-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Description is required
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button
+                onClick={() => setIsCreateModalOpen(false)}
+                className="py-2.5 px-4 rounded-lg border border-border/60 hover:bg-background/80 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitInitiative}
+                disabled={isSubmitting}
+                className={`py-2.5 px-5 rounded-lg bg-primary hover:bg-primary-hover text-white transition-all flex items-center
+                  ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'}`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin mr-2"></div>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 5v14"></path>
+                      <path d="M5 12h14"></path>
+                    </svg>
+                    Create Initiative
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {proposals.length === 0 ? (
         <div className="bg-card border border-border/60 rounded-xl p-8 text-center">

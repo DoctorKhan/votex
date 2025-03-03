@@ -1,37 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
-type ThemeType = 'light' | 'dark';
-
-interface ThemeToggleProps {
-  initialTheme?: ThemeType;
-}
-
-export default function ThemeToggle({ initialTheme = 'light' }: ThemeToggleProps) {
-  const [theme, setTheme] = useState<ThemeType>(initialTheme);
-
-  // Apply theme class to body element
-  useEffect(() => {
-    const body = document.body;
-    
-    // Remove all theme classes
-    body.classList.remove('theme-light', 'theme-dark');
-    
-    // Add the current theme class
-    body.classList.add(`theme-${theme}`);
-    
-    // Save theme preference to localStorage
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  // Load theme preference from localStorage on component mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as ThemeType | null;
-    if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
-      setTheme(savedTheme as ThemeType);
-    }
-  }, []);
+export default function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
 
   return (
     <button

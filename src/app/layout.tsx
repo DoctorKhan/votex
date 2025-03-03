@@ -5,6 +5,7 @@ import "../styles/global.css";
 import Navigation from "../components/Navigation";
 import IndexedDBProvider from "../components/IndexedDBProvider";
 import ErrorBoundary from "../components/ErrorBoundary";
+import { ThemeProvider } from "../context/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,12 +45,14 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <IndexedDBProvider>
-            <div className="min-h-screen flex flex-col">
-              <Navigation />
-              <div className="flex-grow">
-                {children}
+            <ThemeProvider>
+              <div className="min-h-screen flex flex-col">
+                <Navigation />
+                <div className="flex-grow">
+                  {children}
+                </div>
               </div>
-            </div>
+            </ThemeProvider>
           </IndexedDBProvider>
         </ErrorBoundary>
       </body>

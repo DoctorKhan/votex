@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ForumService, ForumThreadEntity, ForumCategoryEntity } from '../../lib/forumService';
+import SuggestedProposals from './SuggestedProposals';
 
 interface ThreadListProps {
   databaseInstance: IDBDatabase;
@@ -173,6 +174,11 @@ export default function ThreadList({ databaseInstance, categoryId, className = '
             </div>
           )}
         </div>
+      )}
+      
+      {/* Show suggested proposals only for Community Issues category */}
+      {category && category.name === 'Community Issues' && (
+        <SuggestedProposals threads={threads} isLoading={isLoading && page === 0} />
       )}
       
       {/* Sorting options */}

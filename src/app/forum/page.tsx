@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import CategoryList from '../../components/forum/CategoryList';
 import { ForumService } from '../../lib/forumService';
+import { setupCommunityIssues } from '../../utils/setupSampleData';
 
 export default function ForumPage() {
   const [databaseInstance, setDatabaseInstance] = useState<IDBDatabase | null>(null);
@@ -91,6 +92,10 @@ export default function ForumPage() {
 
           console.log('Created default forum categories');
         }
+
+        // Initialize the community issues category with sample data regardless
+        // of whether we just created it or it already existed
+        await setupCommunityIssues(databaseInstance);
 
         setIsInitialized(true);
       } catch (err) {

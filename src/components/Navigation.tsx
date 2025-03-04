@@ -91,6 +91,31 @@ export default function Navigation() {
             </div>
           </Link>
           
+          <Link
+            href="/forum"
+            className={`px-3 py-2 rounded-lg transition-all ${
+              pathname === '/forum' || pathname?.startsWith('/forum/')
+                ? 'bg-primary/10 text-primary font-medium shadow-sm'
+                : 'text-foreground/70 hover:bg-background/80 hover:text-foreground'
+            }`}
+          >
+            <div className="flex items-center gap-1.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-4 h-4"
+              >
+                <path d="M17 14v6m-3-3h6M6 9h6M3 5v4h4M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"></path>
+              </svg>
+              <span>Forum</span>
+            </div>
+          </Link>
+          
           <div className="flex items-center gap-2 pl-1">
             <AccessibilitySettings />
             <ThemeToggle />

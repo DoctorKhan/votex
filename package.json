@@ -8,7 +8,7 @@
     "prebuild": "npm run check:css",
     "build": "next build",
     "start": "node check-port.mjs start",
-    "start:standalone": "HOST=0.0.0.0 node .next/standalone/server.js",
+    "start:standalone": "cp -R .next/static .next/standalone/.next/ && HOST=0.0.0.0 node .next/standalone/server.js",
     "lint": "next lint",
     "lint:css": "npx stylelint \"**/*.css\"",
     "check:css": "node scripts/check-css.js",

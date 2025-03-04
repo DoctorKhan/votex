@@ -361,7 +361,10 @@ export default function ProposalItem({
                 </svg>
                 <h4 className="font-semibold psychedelic-text">Feedback</h4>
               </div>
-              <p className="text-foreground/90">{proposal.llmFeedback}</p>
+              <div
+                className="text-foreground/90"
+                dangerouslySetInnerHTML={{ __html: formatMarkdownText(proposal.llmFeedback) }}
+              />
               
               {/* Revision control buttons */}
               <div className="mt-4 flex flex-wrap gap-2">

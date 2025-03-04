@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { formatMarkdownText } from '../utils/formatText';
 
 type Message = {
   role: 'user' | 'assistant' | 'system';
@@ -269,7 +270,14 @@ export default function ChatInterface({ proposals = [] }: ChatInterfaceProps) {
                             : 'bg-secondary/10 border border-border rounded-tl-none'
                       }`}
                     >
-                      <p className="whitespace-pre-wrap">{message.content}</p>
+                      {message.role === 'assistant' ? (
+                        <div
+                          className="whitespace-pre-wrap chat-message"
+                          dangerouslySetInnerHTML={{ __html: formatMarkdownText(message.content) }}
+                        />
+                      ) : (
+                        <p className="whitespace-pre-wrap">{message.content}</p>
+                      )}
                     </div>
                   </div>
                 ))}

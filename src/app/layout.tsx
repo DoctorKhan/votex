@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "../styles/global.css";
+import "../styles/proposal.css";
 import Navigation from "../components/Navigation";
 import IndexedDBProvider from "../components/IndexedDBProvider";
 import ErrorBoundary from "../components/ErrorBoundary";

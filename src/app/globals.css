@@ -181,6 +181,20 @@ body.theme-dark::after {
     }
   }
   
+  /* Grid pattern background */
+  .bg-grid-pattern {
+    background-size: 30px 30px;
+    background-image: 
+      linear-gradient(to right, rgba(var(--primary-rgb), 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(var(--primary-rgb), 0.05) 1px, transparent 1px);
+  }
+  
+  .theme-dark .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(var(--primary-rgb), 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(var(--primary-rgb), 0.07) 1px, transparent 1px);
+  }
+  
   /* Text effect with theme colors */
   .psychedelic-text {
     color: var(--primary);

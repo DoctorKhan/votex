@@ -331,15 +331,11 @@ export default function ProposalItem({
             }`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className={`animate-pulse ${isExpanded ? 'w-4 h-4 mr-1.5' : 'w-3.5 h-3.5 mr-1'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 8V4H8"></path>
-              <rect width="16" height="12" x="4" y="8" rx="2"></rect>
-              <path d="M2 14h2"></path>
-              <path d="M20 14h2"></path>
-              <path d="M15 13v2"></path>
-              <path d="M9 13v2"></path>
+              <path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a2 2 0 0 1-2-2v-1"></path>
+              <path d="M14 10V4a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l4-4h3a2 2 0 0 0 2-2z"></path>
             </svg>
             <span className={`relative ${isExpanded ? 'text-base' : 'text-sm'}`}>
-              Get Feedback
+              Community Feedback
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white/30 animate-pulse"></span>
             </span>
           </button>
@@ -351,16 +347,12 @@ export default function ProposalItem({
           {proposal.llmFeedback && (
             <div className="bg-accent/10 border border-accent/20 p-4 rounded-lg pulsate-glow rainbow-border">
               <div className="flex items-center mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-accent mr-2 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 8V4H8"></path>
-                  <rect width="16" height="12" x="4" y="8" rx="2"></rect>
-                  <path d="M2 14h2"></path>
-                  <path d="M20 14h2"></path>
-                  <path d="M15 13v2"></path>
-                  <path d="M9 13v2"></path>
-                </svg>
-                <h4 className="font-semibold psychedelic-text">Feedback</h4>
-              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-accent mr-2 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a2 2 0 0 1-2-2v-1"></path>
+                <path d="M14 10V4a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l4-4h3a2 2 0 0 0 2-2z"></path>
+              </svg>
+              <h4 className="font-semibold psychedelic-text">Aggregate Feedback</h4>
+              </div>  
               <div
                 className="text-foreground/90"
                 dangerouslySetInnerHTML={{ __html: formatMarkdownText(proposal.llmFeedback) }}

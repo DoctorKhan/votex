@@ -1,8 +1,30 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import ChatInterface from '../../components/ChatInterface';
+import { ProposalEntity } from '../../lib/proposalService';
+import { getAllItems } from '../../lib/db';
 
 export default function ChatPage() {
+  const [proposals, setProposals] = useState<ProposalEntity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProposals() {
+      try {
+        // Fetch proposals directly using getAllItems function from db.ts
+        const allProposals = await getAllItems<ProposalEntity>('proposals');
+        setProposals(allProposals);
+      } catch (error) {
+        console.error('Error fetching proposals:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProposals();
+  }, []);
+
   return (
     <div className="grid grid-rows-[auto_1fr_auto] min-h-[calc(100vh-64px)] p-4 md:p-8 gap-6 md:gap-8 bg-gradient-to-b from-background to-background/80">
       <header className="text-center animate-in py-6 mt-4">
@@ -26,10 +48,21 @@ export default function ChatPage() {
         <p className="text-foreground/70 max-w-md mx-auto text-lg">
           Discuss initiatives, share insights, and build consensus
         </p>
+        {proposals.length > 0 && (
+          <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+            {proposals.length} Active {proposals.length === 1 ? 'Initiative' : 'Initiatives'}
+          </div>
+        )}
       </header>
       
       <main className="w-full max-w-4xl mx-auto px-4">
-        <ChatInterface proposals={[]} />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-40">
+            <div className="w-8 h-8 border-t-2 border-primary rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <ChatInterface proposals={proposals} />
+        )}
       </main>
       
       <footer className="text-center text-sm text-foreground/60 py-6 border-t border-border/40 mt-8">

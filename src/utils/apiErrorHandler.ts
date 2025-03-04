@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Type for API route handler functions
+ * Type for App Router API route handler functions
  */
 export type ApiRouteHandler = (
   req: NextRequest,
-  params?: Record<string, string>
+  context?: { params?: Record<string, string | string[]> }
 ) => Promise<NextResponse>;
 
 /**
@@ -14,9 +14,9 @@ export type ApiRouteHandler = (
  * @returns A wrapped handler function with error handling
  */
 export function withErrorHandler(handler: ApiRouteHandler): ApiRouteHandler {
-  return async (req: NextRequest, params?: Record<string, string>) => {
+  return async (req: NextRequest, context?: { params?: Record<string, string | string[]> }) => {
     try {
-      return await handler(req, params);
+      return await handler(req, context);
     } catch (error) {
       console.error('API route error:', error);
       

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withErrorHandler } from '@/utils/apiErrorHandler';
 
 // GROQ API configuration
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
@@ -103,7 +102,7 @@ async function generateRevisedProposal(originalDescription: string, feedback: st
   }
 }
 
-async function handlePost(request: NextRequest) {
+export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => {
     throw new Error('Invalid request body: Failed to parse JSON');
   });
@@ -122,5 +121,3 @@ async function handlePost(request: NextRequest) {
   
   return NextResponse.json({ revisedProposal });
 }
-
-export const POST = withErrorHandler(handlePost);

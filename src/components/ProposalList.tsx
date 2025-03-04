@@ -135,9 +135,10 @@ export default function ProposalList() {
       
       // Create a revision entity
       const revision = {
-        id: Date.now(), // Use timestamp as a numeric ID
+        id: Date.now().toString(), // Use timestamp as a string ID
+        proposalId: proposalId, // Add the required proposalId property
         description: revisionText,
-        timestamp: new Date().toISOString()
+        timestamp: Date.now()  // Use numeric timestamp to match the interface
       };
       
       // Add the revision to the proposal

@@ -1,15 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ThreadView from '../../../../components/forum/ThreadView';
 
+// Define the shape of the resolved params
+interface ThreadParams {
+  threadId: string;
+}
+
 interface ThreadPageProps {
-  params: {
-    threadId: string;
-  };
+  params: Promise<ThreadParams>;
 }
 
 export default function ThreadPage({ params }: ThreadPageProps) {
+  // Unwrap params immediately at the top level
+  const { threadId } = React.use(params);
   const [databaseInstance, setDatabaseInstance] = useState<IDBDatabase | null>(null);
 
   // Get database instance
@@ -51,9 +56,9 @@ export default function ThreadPage({ params }: ThreadPageProps) {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <ThreadView 
-        databaseInstance={databaseInstance} 
-        threadId={params.threadId} 
+      <ThreadView
+        databaseInstance={databaseInstance}
+        threadId={threadId}
       />
     </div>
   );

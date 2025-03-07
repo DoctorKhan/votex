@@ -4,6 +4,7 @@ import "./globals.css";
 import "../styles/global.css";
 import "../styles/proposal.css";
 import Navigation from "../components/Navigation";
+import Footer from "../components/Footer";
 import IndexedDBProvider from "../components/IndexedDBProvider";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { ThemeProvider } from "../context/ThemeContext";
@@ -52,6 +53,7 @@ export default function RootLayout({
                 <div className="flex-grow">
                   {children}
                 </div>
+                <Footer />
               </div>
             </ThemeProvider>
           </IndexedDBProvider>

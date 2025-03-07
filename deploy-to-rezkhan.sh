@@ -281,10 +281,7 @@ main() {
   
   # Setup git-crypt
   setup_git_crypt
-  
-  # Setup Nginx for routing
-  setup_nginx
-  
+    
   # Setup SSL
   setup_ssl
   

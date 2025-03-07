@@ -181,6 +181,29 @@ body.theme-dark::after {
     }
   }
   
+  .animate-fade-in-out {
+    animation: fadeInOut 5s ease-in-out;
+  }
+  
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    80% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+  
   /* Grid pattern background */
   .bg-grid-pattern {
     background-size: 30px 30px;

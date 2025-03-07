@@ -116,6 +116,33 @@ export default function Navigation() {
             </div>
           </Link>
           
+          <Link
+            href="/story"
+            className={`px-3 py-2 rounded-lg transition-all ${
+              pathname === '/story' || pathname?.startsWith('/story/')
+                ? 'bg-primary/10 text-primary font-medium shadow-sm'
+                : 'text-foreground/70 hover:bg-background/80 hover:text-foreground'
+            }`}
+          >
+            <div className="flex items-center gap-1.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-4 h-4"
+              >
+                <path d="M18 6V4H6v2"></path>
+                <path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"></path>
+                <path d="M12 3v15"></path>
+              </svg>
+              <span>Story</span>
+            </div>
+          </Link>
+          
           <div className="flex items-center gap-2 pl-1">
             <a
               href="https://github.com/DoctorKhan/votex"

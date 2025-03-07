@@ -117,6 +117,33 @@ export default function Navigation() {
           </Link>
           
           <Link
+            href="/community/metrics"
+            className={`px-3 py-2 rounded-lg transition-all ${
+              pathname === '/community/metrics' || pathname?.startsWith('/community/metrics/')
+                ? 'bg-primary/10 text-primary font-medium shadow-sm'
+                : 'text-foreground/70 hover:bg-background/80 hover:text-foreground'
+            }`}
+          >
+            <div className="flex items-center gap-1.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-4 h-4"
+              >
+                <path d="M3 3v18h18"></path>
+                <path d="M18 9l-6-6-7 8"></path>
+                <path d="M14 3h4v4"></path>
+              </svg>
+              <span>Metrics</span>
+            </div>
+          </Link>
+          
+          <Link
             href="/story"
             className={`px-3 py-2 rounded-lg transition-all ${
               pathname === '/story' || pathname?.startsWith('/story/')
@@ -144,6 +171,62 @@ export default function Navigation() {
           </Link>
           
           <div className="flex items-center gap-2 pl-1">
+            {/* Admin Menu - display for admins */}
+            <div className="relative group">
+              <button
+                className="p-1.5 text-foreground/70 hover:text-foreground rounded-lg transition-colors"
+                aria-label="Admin Menu"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5"
+                >
+                  <path d="M12 4.5c-1.93 0-3.5 1.57-3.5 3.5 0 1.74 1.27 3.18 2.94 3.45.34.05.6.33.6.68v.32c0 .35-.27.63-.62.68-1.36.18-2.42.82-2.42 1.87v2h6v-2c0-1.05-1.06-1.69-2.42-1.87-.35-.05-.62-.33-.62-.68v-.32c0-.35.27-.63.61-.68 1.67-.27 2.94-1.71 2.94-3.45 0-1.93-1.57-3.5-3.5-3.5z"></path>
+                  <path d="M20 16v4a2 2 0 0 1-2 2h-2v-6h2a2 2 0 0 1 2 0Z"></path>
+                  <path d="M4 16a2 2 0 0 1 2 0h2v6H6a2 2 0 0 1-2-2v-4Z"></path>
+                </svg>
+              </button>
+              
+              {/* Admin Dropdown Menu */}
+              <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg overflow-hidden z-20 border border-gray-200 dark:border-gray-700 transform origin-top-right scale-0 group-hover:scale-100 transition-transform duration-150 ease-in-out">
+                <div className="py-1">
+                  <Link
+                    href="/admin/personas"
+                    className={`block px-4 py-2 text-sm ${
+                      pathname?.startsWith('/admin/personas')
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-4 h-4"
+                      >
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                      </svg>
+                      <span>Persona Management</span>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
+            
             <a
               href="https://github.com/DoctorKhan/votex"
               target="_blank"

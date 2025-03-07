@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import ThreadList from '../../../../components/forum/ThreadList';
-import { ForumService } from '../../../../lib/forumService';
 
 // Define the shape of the resolved params
 interface CategoryParams {

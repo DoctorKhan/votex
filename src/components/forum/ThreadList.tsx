@@ -63,7 +63,7 @@ export default function ThreadList({ databaseInstance, categoryId, className = '
         const sortedThreads = sortThreads(fetchedThreads, sortOption);
         
         // Update state
-        setThreads(page === 0 ? sortedThreads : [...threads, ...sortedThreads]);
+        setThreads(prevThreads => page === 0 ? sortedThreads : [...prevThreads, ...sortedThreads]);
         setHasMore(sortedThreads.length === pageSize); // Assume there's more if we got a full page
         setError(null);
       } catch (err) {

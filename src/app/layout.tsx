@@ -8,6 +8,7 @@ import Footer from "../components/Footer";
 import IndexedDBProvider from "../components/IndexedDBProvider";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { ThemeProvider } from "../context/ThemeContext";
+import DataConsistencyChecker from "../components/DataConsistencyChecker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,8 @@ export default function RootLayout({
                   {children}
                 </div>
                 <Footer />
+                {/* Hidden component that checks and maintains data consistency */}
+                <DataConsistencyChecker />
               </div>
             </ThemeProvider>
           </IndexedDBProvider>

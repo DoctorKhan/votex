@@ -121,7 +121,7 @@ export default function ProposalItem({
         setCurrentRevisionIndex(uniqueRevisions.length - 1); // Start at the latest revision
       }
     }
-  }, [proposal.revisions, proposal.analysis]);
+    }, [proposal.revisions, proposal.analysis, revisionHistory.length]);
 
   const handleAddRevision = () => {
     if (!newRevision.trim()) return;

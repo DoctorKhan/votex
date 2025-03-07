@@ -1,9 +1,13 @@
 'use client';
 
+import { useState } from "react";
 import VotingApp from "../../components/VotingApp";
 import ProposalList from "../../components/ProposalList";
+import PersonaProposalList from "../../components/PersonaProposalList";
 
 export default function InitiativesPage() {
+  const [activeTab, setActiveTab] = useState<'community' | 'personas'>('community');
+
   return (
     <div className="grid grid-rows-[auto_1fr_auto] min-h-[calc(100vh-64px)] p-4 md:p-8 gap-6 md:gap-8 bg-gradient-to-b from-background to-background/80">
       <header className="text-center animate-in py-6 mt-4">
@@ -31,9 +35,49 @@ export default function InitiativesPage() {
       </header>
       
       <main className="w-full max-w-4xl mx-auto px-4">
-        <VotingApp>
-          <ProposalList />
-        </VotingApp>
+        {/* Proposal Type Tabs */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex rounded-md shadow-sm" role="group">
+            <button
+              type="button"
+              onClick={() => setActiveTab('community')}
+              className={`px-4 py-2 text-sm font-medium rounded-l-lg focus:z-10 ${
+                activeTab === 'community'
+                  ? 'bg-primary text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              } border border-gray-200 dark:border-gray-600`}
+            >
+              Community Proposals
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('personas')}
+              className={`px-4 py-2 text-sm font-medium rounded-r-lg focus:z-10 ${
+                activeTab === 'personas'
+                  ? 'bg-primary text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              } border border-gray-200 dark:border-gray-600 border-l-0`}
+            >
+              AI Persona Proposals
+            </button>
+          </div>
+        </div>
+
+        {activeTab === 'community' ? (
+          <VotingApp>
+            <ProposalList />
+          </VotingApp>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">AI Persona Generated Proposals</h2>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                These proposals are created by AI personas to simulate community activity.
+              </p>
+            </div>
+            <PersonaProposalList />
+          </div>
+        )}
       </main>
       
       <footer className="text-center text-sm text-foreground/60 py-6 border-t border-border/40 mt-8">

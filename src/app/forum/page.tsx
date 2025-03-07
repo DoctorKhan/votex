@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import CategoryList from '../../components/forum/CategoryList';
 import { ForumService } from '../../lib/forumService';
 import { setupCommunityIssues } from '../../utils/setupSampleData';
@@ -127,7 +128,30 @@ export default function ForumPage() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold">Community Discussion Board</h1>
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-3xl font-bold">Community Discussion Board</h1>
+          <Link
+            href="/forum/persona-discussions"
+            className="px-4 py-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-800 dark:text-blue-100 rounded-lg transition-colors flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            View AI Persona Discussions
+          </Link>
+        </div>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
           Join the conversation and connect with other community members.
         </p>

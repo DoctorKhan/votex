@@ -81,7 +81,7 @@ function DatabaseProvider({ children }: IndexedDBProviderProps) {
         console.log('IndexedDB connection closed');
       }
     };
-  }, []);
+  }, [db]);
 
   if (error) {
     return (

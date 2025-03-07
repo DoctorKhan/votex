@@ -89,6 +89,13 @@ const PersonaController: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [personaModule, setPersonaModule] = useState<PersonaModuleType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [recentActivities, setRecentActivities] = useState<Array<{
+    personaId: PersonaId;
+    personaName: string;
+    action: 'proposal' | 'vote' | 'comment';
+    description: string;
+    timestamp: number;
+  }>>([]);
 
   // Load the persona module
   useEffect(() => {
@@ -318,10 +325,13 @@ const PersonaController: React.FC = () => {
       return;
     }
     
-    setActionStatus(`Triggering ${action} for ${personas.find(p => p.id === id)?.name}...`);
+    const personaName = personas.find(p => p.id === id)?.name || 'Unknown persona';
+    setActionStatus(`Triggering ${action} for ${personaName}...`);
     
     try {
       let result;
+      let actionDescription = '';
+      
       const mockContext = {
         proposalContext: {
           recentTopics: ['governance', 'data privacy', 'community accessibility'],
@@ -341,7 +351,8 @@ const PersonaController: React.FC = () => {
       
       if (action === 'proposal') {
         result = await personaModule.generateProposal(id, mockContext);
-        setActionStatus(`${personas.find(p => p.id === id)?.name} created a proposal: "${result.title}"`);
+        actionDescription = `Created a proposal: "${result.title}"`;
+        setActionStatus(`${personaName} ${actionDescription}`);
       } else if (action === 'vote') {
         // Mock a proposal to vote on
         const mockProposal = {
@@ -351,7 +362,8 @@ const PersonaController: React.FC = () => {
         };
         
         result = await personaModule.simulateVote(id, mockProposal.id, mockProposal.content, mockContext);
-        setActionStatus(`${personas.find(p => p.id === id)?.name} voted "${result.vote}" on "${mockProposal.title}"`);
+        actionDescription = `Voted "${result.vote}" on "${mockProposal.title}"`;
+        setActionStatus(`${personaName} ${actionDescription}`);
       } else if (action === 'comment') {
         // Mock a thread to comment on
         const mockThread = {
@@ -361,15 +373,118 @@ const PersonaController: React.FC = () => {
         };
         
         result = await personaModule.generateForumComment(id, mockThread.id, mockThread.content, [], mockContext);
-        setActionStatus(`${personas.find(p => p.id === id)?.name} commented on "${mockThread.title}"`);
+        actionDescription = `Commented on "${mockThread.title}"`;
+        setActionStatus(`${personaName} ${actionDescription}`);
+      }
+      
+      // Add to recent activities
+      // Get details based on the action type
+      let details = '';
+      if (action === 'proposal' && result) {
+        details = (result as ProposalResult).title || '';
+      } else if (action === 'vote' && result) {
+        details = (result as VoteResult).reasoning || '';
+      } else if (action === 'comment' && result) {
+        details = (result as CommentResult).content?.substring(0, 100) || '';
+      }
+      
+      const newActivity = {
+        personaId: id,
+        personaName: personaName,
+        action,
+        description: actionDescription,
+        timestamp: Date.now(),
+        details
+      };
+      
+      // Update local state
+      setRecentActivities(prev => [
+        newActivity,
+        ...prev.slice(0, 9) // Keep only the last 10 activities
+      ]);
+      
+      // Save to localStorage for the dedicated activities page
+      try {
+        const storedActivities = JSON.parse(localStorage.getItem('personaActivities') || '[]');
+        localStorage.setItem('personaActivities', JSON.stringify([
+          newActivity,
+          ...storedActivities.slice(0, 19) // Keep only last 20 activities in storage
+        ]));
+        
+        // Also save the actual content to the appropriate collection
+        if (action === 'proposal' && result) {
+          const proposal = result as ProposalResult; // Use proper type
+          const storedProposals = JSON.parse(localStorage.getItem('personaProposals') || '[]');
+          const newProposal = {
+            id: `persona-proposal-${Date.now()}`,
+            title: proposal.title || 'Untitled Proposal',
+            description: proposal.content || 'No description provided',
+            authorId: id,
+            authorName: personaName,
+            createdAt: Date.now(),
+            votes: [],
+            status: 'active'
+          };
+          
+          localStorage.setItem('personaProposals', JSON.stringify([
+            newProposal,
+            ...storedProposals
+          ]));
+        } else if (action === 'vote' && result) {
+          const vote = result as VoteResult;
+          const storedProposals = JSON.parse(localStorage.getItem('personaProposals') || '[]');
+          
+          // Find the proposal to vote on - randomly select one if available
+          if (storedProposals.length > 0) {
+            const randomIndex = Math.floor(Math.random() * storedProposals.length);
+            const targetProposal = storedProposals[randomIndex];
+            
+            // Add vote to the proposal
+            targetProposal.votes.push({
+              personaId: id,
+              personaName: personaName,
+              vote: vote.vote || 'approve',
+              reasoning: vote.reasoning || '',
+              timestamp: Date.now()
+            });
+            
+            localStorage.setItem('personaProposals', JSON.stringify(storedProposals));
+          }
+        } else if (action === 'comment' && result) {
+          const comment = result as CommentResult;
+          const storedComments = JSON.parse(localStorage.getItem('personaComments') || '[]');
+          
+          const newComment = {
+            id: `persona-comment-${Date.now()}`,
+            content: comment.content || '',
+            authorId: id,
+            authorName: personaName,
+            createdAt: Date.now(),
+            parentId: null, // Random thread or top-level comment
+            threadId: `thread-${Math.floor(Math.random() * 5) + 1}` // Assign to a random thread
+          };
+          
+          localStorage.setItem('personaComments', JSON.stringify([
+            newComment,
+            ...storedComments
+          ]));
+        }
+        
+        // Dispatch storage event to notify other tabs/components
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'personaActivities',
+          newValue: localStorage.getItem('personaActivities')
+        }));
+      } catch (e) {
+        console.error('Failed to save activity to localStorage:', e);
       }
       
       // Update last action
-      setPersonas(prevPersonas => 
+      setPersonas(prevPersonas =>
         prevPersonas.map(p => {
           if (p.id === id) {
             return {
-              ...p, 
+              ...p,
               lastAction: {
                 type: action,
                 timestamp: Date.now()
@@ -543,6 +658,49 @@ const PersonaController: React.FC = () => {
           <div className="text-sm text-gray-600 dark:text-gray-300">{actionStatus}</div>
         </div>
       )}
+      
+      {/* Recent Persona Activities Feed */}
+      <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Persona Activities</h3>
+        
+        {recentActivities.length > 0 ? (
+          <div className="space-y-3">
+            {recentActivities.map((activity, idx) => (
+              <div key={idx} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-medium text-gray-800 dark:text-white">{activity.personaName}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {new Date(activity.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {activity.description}
+                </p>
+                <div className="mt-1">
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    activity.action === 'proposal'
+                      ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
+                      : activity.action === 'vote'
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
+                        : 'bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300'
+                  }`}>
+                    {activity.action}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+            <p className="text-gray-500 dark:text-gray-400">
+              No activities yet. Activate personas and they will automatically generate content over time.
+            </p>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              You can also manually trigger actions using the buttons on each persona card.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

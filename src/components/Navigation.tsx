@@ -223,6 +223,33 @@ export default function Navigation() {
                       <span>Persona Management</span>
                     </div>
                   </Link>
+                  
+                  <Link
+                    href="/admin/persona-activities"
+                    className={`block px-4 py-2 text-sm ${
+                      pathname?.startsWith('/admin/persona-activities')
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-4 h-4"
+                      >
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                        <path d="m15 5 3 3"></path>
+                      </svg>
+                      <span>Persona Activities</span>
+                    </div>
+                  </Link>
                 </div>
               </div>
             </div>

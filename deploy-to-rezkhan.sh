@@ -133,15 +133,7 @@ setup_ssl() {
       exit 1
     fi
     print_warning "Continuing without SSL - site will use HTTP only"
-    
-    # Update Nginx config to work without SSL
-    sed -i 's/listen 443 ssl;/listen 80;/g' /etc/nginx/sites-available/$DOMAIN
-    sed -i '/ssl_certificate/d' /etc/nginx/sites-available/$DOMAIN
-    sed -i '/ssl_certificate_key/d' /etc/nginx/sites-available/$DOMAIN
-    sed -i '/ssl_protocols/d' /etc/nginx/sites-available/$DOMAIN
-    sed -i '/ssl_prefer_server_ciphers/d' /etc/nginx/sites-available/$DOMAIN
-    sed -i '/ssl_ciphers/d' /etc/nginx/sites-available/$DOMAIN
-    
+        
     # Remove the HTTP to HTTPS redirect
     sed -i '/return 301/d' /etc/nginx/sites-available/$DOMAIN
   fi

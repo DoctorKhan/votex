@@ -81,7 +81,7 @@ function DatabaseProvider({ children }: IndexedDBProviderProps) {
         console.log('IndexedDB connection closed');
       }
     };
-  }, [db]);
+  }, []); // Remove db from dependency array to prevent re-initialization
 
   if (error) {
     return (

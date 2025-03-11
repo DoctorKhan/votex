@@ -7,54 +7,39 @@ import type { PersonaId } from '../../personas/persona-implementation';
 type ActivityFrequency = 'high' | 'medium' | 'low' | 'paused';
 type ActionType = 'proposal' | 'vote' | 'comment';
 
-// Context interfaces
-interface ProposalContext {
-  recentTopics?: string[];
-  communityNeeds?: string[];
-  ongoingDiscussions?: string[];
-}
+// Import context and result interfaces from persona-implementation
+import type {
+  PersonaContext,
+  ProposalEntity,
+  VoteEntity,
+  ForumPostEntity as ImportedForumPostEntity
+} from '../../personas/persona-implementation';
 
-interface VotingContext {
-  recentProposals?: Array<{id: string; title: string; content: string}>;
-  userVotingHistory?: Record<string, 'approve' | 'reject' | 'abstain'>;
-}
+// Result interfaces - using Partial to match the implementation
+type ProposalResult = Partial<ProposalEntity>;
+type VoteResult = Partial<VoteEntity>;
+type CommentResult = Partial<ImportedForumPostEntity>;
 
-interface ForumContext {
-  activeThreads?: Array<{id: string; title: string; content: string}>;
-  recentDiscussions?: string[];
-  controversialTopics?: string[];
-}
-
-interface PersonaContext {
-  proposalContext?: ProposalContext;
-  votingContext?: VotingContext;
-  forumContext?: ForumContext;
-}
-
-// Result interfaces
-interface ProposalResult {
-  title: string;
-  content: string;
-  category: string;
-  tags: string[];
-}
-
-interface VoteResult {
-  vote: 'approve' | 'reject' | 'abstain';
-  reasoning: string;
-}
-
-interface CommentResult {
-  content: string;
-  tags?: string[];
-}
-
-// Forum post interface to match expected type
+// Create a local ForumPostEntity that matches the expected structure in this component
+// but can be converted to/from the imported type
 interface ForumPostEntity {
   content: string;
   threadId: string;
   userId: string;
   createdAt: number;
+}
+
+// Helper function to convert our ForumPostEntity to the imported type
+function convertToImportedForumPost(post: ForumPostEntity): ImportedForumPostEntity {
+  return {
+    ...post,
+    createdAt: new Date(post.createdAt)
+  };
+}
+
+// Helper function to convert an array of our ForumPostEntity to the imported type
+function convertToImportedForumPosts(posts: ForumPostEntity[]): ImportedForumPostEntity[] {
+  return posts.map(convertToImportedForumPost);
 }
 
 interface PersonaControlState {
@@ -81,7 +66,7 @@ interface PersonaModuleType {
   schedulePersonaActivity: (personaIds: PersonaId[], frequency?: 'high' | 'medium' | 'low') => void;
   generateProposal: (personaId: PersonaId, context: PersonaContext) => Promise<ProposalResult>;
   simulateVote: (personaId: PersonaId, proposalId: string, proposalContent: string, context: PersonaContext) => Promise<VoteResult>;
-  generateForumComment: (personaId: PersonaId, threadId: string, threadContent: string, existingComments: ForumPostEntity[], context: PersonaContext) => Promise<CommentResult>;
+  generateForumComment: (personaId: PersonaId, threadId: string, threadContent: string, existingComments: ImportedForumPostEntity[], context: PersonaContext) => Promise<CommentResult>;
 }
 
 // Mock implementations for fallback
@@ -347,7 +332,6 @@ const PersonaController: React.FC = () => {
             title: 'Thoughts on the new voting interface?',
             content: 'What do you think about the recent UI changes?'
           };
-          
           // Create properly typed forum posts array
           const mockComments: ForumPostEntity[] = [
             {
@@ -358,7 +342,14 @@ const PersonaController: React.FC = () => {
             }
           ];
           
-          commentResult = await personaModule.generateForumComment(id, mockThread.id, mockThread.content, mockComments, context);
+          // Convert to imported type before passing to the module
+          commentResult = await personaModule.generateForumComment(
+            id,
+            mockThread.id,
+            mockThread.content,
+            convertToImportedForumPosts(mockComments),
+            context
+          );
           description = `Commented on "${mockThread.title}"`;
           break;
         default:

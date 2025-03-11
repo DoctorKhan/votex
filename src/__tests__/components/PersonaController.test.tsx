@@ -40,12 +40,12 @@ describe('PersonaController', () => {
     });
   });
   
-  test('renders the persona control panel', async () => {
+  test('renders the persona manager', async () => {
     render(<PersonaController />);
     
     // Wait for the component to finish loading
     await waitFor(() => {
-      expect(screen.getByText('Persona Control Panel')).toBeInTheDocument();
+      expect(screen.getByText('Persona Manager')).toBeInTheDocument();
     });
     
     // Check that all personas are rendered
@@ -90,8 +90,8 @@ describe('PersonaController', () => {
       expect(screen.getByText('Dr. Alex Chen')).toBeInTheDocument();
     });
     
-    // Click the generate proposal button for the first persona
-    const proposalButtons = screen.getAllByText('Generate Proposal');
+    // Click the proposal button for the first persona
+    const proposalButtons = screen.getAllByText('Proposal');
     fireEvent.click(proposalButtons[0]);
     
     // Check that generateProposal was called with the correct ID
@@ -116,7 +116,7 @@ describe('PersonaController', () => {
     
     // Check that error message is shown
     await waitFor(() => {
-      expect(screen.getByText('Error')).toBeInTheDocument();
+      expect(screen.getByText('Could not load personas. Please refresh the page.')).toBeInTheDocument();
     });
   });
   

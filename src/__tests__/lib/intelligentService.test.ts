@@ -1,12 +1,14 @@
-import { 
-  generateSmartProposal, 
-  analyzeAndVote, 
-  generateProposalAnalysis, 
-  getSmartFeedback 
+import {
+  generateSmartProposal,
+  analyzeAndVote,
+  generateProposalAnalysis,
+  getSmartFeedback
 } from '../../lib/intelligentService';
-import fetch from 'node-fetch';
 
-jest.mock('node-fetch');
+// Use require for node-fetch to avoid ESM issues
+const fetch = require('node-fetch');
+
+jest.mock('node-fetch', () => jest.fn());
 jest.mock('../../lib/loggingService', () => ({
   logAction: jest.fn().mockResolvedValue({ success: true })
 }));

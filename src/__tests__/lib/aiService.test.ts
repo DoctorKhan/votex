@@ -39,10 +39,10 @@ describe('AI Service', () => {
       // Arrange
       const proposalId = 'non-existent-id';
       (getAllItems as jest.Mock).mockResolvedValueOnce([]);
-      
+
       // Act
       const result = await aiService.getProposal(proposalId);
-      
+
       // Assert
       expect(result).toBeNull();
       expect(getAllItems).toHaveBeenCalledWith('proposals');
@@ -56,14 +56,14 @@ describe('AI Service', () => {
         title: 'Test Proposal',
         description: 'This is a test proposal',
         votes: 0,
-        createdAt: Date.now()
+        createdAt: Date.now().toString()
       };
       
       (getAllItems as jest.Mock).mockResolvedValueOnce([mockProposal]);
       
       // Act
       const result = await aiService.getProposal(proposalId);
-      
+
       // Assert
       expect(result).toEqual(mockProposal);
       expect(getAllItems).toHaveBeenCalledWith('proposals');
@@ -78,8 +78,8 @@ describe('AI Service', () => {
         id: proposalId,
         title: 'Updated Proposal',
         description: 'This is an updated proposal',
-        votes: 5,
-        createdAt: Date.now()
+        votes: 0,
+        createdAt: Date.now().toString()
       };
       
       // Act
@@ -102,12 +102,12 @@ describe('AI Service', () => {
       expect(deleteItem).toHaveBeenCalledWith('proposals', proposalId);
     });
   });
-
+  
   describe('generateAiProposal', () => {
     beforeEach(() => {
       (global.fetch as jest.Mock).mockReset();
     });
-
+    
     test('should generate a new AI proposal', async () => {
       // Arrange
       const mockResponse = {
@@ -119,22 +119,23 @@ describe('AI Service', () => {
           }
         ]
       };
-
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      
+      (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: jest.fn().mockResolvedValue(mockResponse)
       });
-
+      
       // Act
-      const result = await aiService.generateAiProposal([]);
+      const result = await aiService.generateAiProposal();
 
       // Assert
       expect(result).toHaveProperty('title', 'Community Garden Expansion');
       expect(result).toHaveProperty('description');
+      expect(result.description).toContain('Expand the existing community garden');
       expect(result).toHaveProperty('aiCreated', true);
       expect(global.fetch).toHaveBeenCalledWith('/api/ai-proposal', expect.anything());
     });
-
+    
     test('should handle API errors gracefully', async () => {
       // Arrange
       (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -143,29 +144,28 @@ describe('AI Service', () => {
       });
 
       // Act
-      const result = await aiService.generateAiProposal([]);
+      const result = await aiService.generateAiProposal();
 
       // Assert
-      expect(result).toHaveProperty('title');
-      expect(result).toHaveProperty('description');
+      expect(result).toHaveProperty('title', 'Community Improvement Initiative');
+      expect(result).toHaveProperty('description', 'A default proposal to address community needs.');
       expect(result).toHaveProperty('aiCreated', true);
-      // Should return fallback values
     });
   });
-
+  
   describe('analyzeAndVote', () => {
     beforeEach(() => {
       (global.fetch as jest.Mock).mockReset();
     });
-
+    
     test('should analyze proposals and vote for the best ones', async () => {
       // Arrange
       const mockProposals: ProposalEntity[] = [
-        { id: 'proposal-1', title: 'Proposal 1', description: 'Description 1', votes: 0, createdAt: Date.now() },
-        { id: 'proposal-2', title: 'Proposal 2', description: 'Description 2', votes: 0, createdAt: Date.now() },
-        { id: 'proposal-3', title: 'Proposal 3', description: 'Description 3', votes: 0, createdAt: Date.now() }
+        { id: 'proposal-1', title: 'Proposal 1', description: 'Description 1', votes: 0, createdAt: Date.now().toString() },
+        { id: 'proposal-2', title: 'Proposal 2', description: 'Description 2', votes: 0, createdAt: Date.now().toString() },
+        { id: 'proposal-3', title: 'Proposal 3', description: 'Description 3', votes: 0, createdAt: Date.now().toString() }
       ];
-
+      
       const mockResponse = {
         choices: [
           {
@@ -175,40 +175,40 @@ describe('AI Service', () => {
           }
         ]
       };
-
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      
+      (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: jest.fn().mockResolvedValue(mockResponse)
       });
-
+      
       // Act
       const result = await aiService.analyzeAndVote(mockProposals);
-
+      
       // Assert
       expect(result).toContain('proposal-1');
       expect(result).toContain('proposal-3');
       expect(result).not.toContain('proposal-2');
       expect(global.fetch).toHaveBeenCalledWith('/api/ai-vote', expect.anything());
     });
-
+    
     test('should handle empty proposals array', async () => {
       // Arrange
       const mockProposals: ProposalEntity[] = [];
-
+      
       // Act
       const result = await aiService.analyzeAndVote(mockProposals);
-
+      
       // Assert
       expect(result).toEqual([]);
       expect(global.fetch).not.toHaveBeenCalled();
     });
-
+    
     test('should handle API errors gracefully', async () => {
       // Arrange
       const mockProposals: ProposalEntity[] = [
-        { id: 'proposal-1', title: 'Proposal 1', description: 'Description 1', votes: 0, createdAt: Date.now() }
+        { id: 'proposal-1', title: 'Proposal 1', description: 'Description 1', votes: 0, createdAt: Date.now().toString() }
       ];
-
+      
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
         status: 500
@@ -216,22 +216,22 @@ describe('AI Service', () => {
 
       // Act
       const result = await aiService.analyzeAndVote(mockProposals);
-
+      
       // Assert
       expect(result).toEqual(['proposal-1']); // Should fall back to voting for the first proposal
     });
   });
-
+  
   describe('generateProposalAnalysis', () => {
     beforeEach(() => {
       (global.fetch as jest.Mock).mockReset();
     });
-
+    
     test('should analyze a proposal and return metrics', async () => {
       // Arrange
       const mockTitle = 'Community Garden Project';
       const mockDescription = 'Create a community garden in the central district';
-
+      
       const mockResponse = {
         choices: [
           {
@@ -249,18 +249,20 @@ describe('AI Service', () => {
           }
         ]
       };
-
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      
+      (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: jest.fn().mockResolvedValue(mockResponse)
       });
-
+      
       // Act
       const result = await aiService.generateProposalAnalysis(mockTitle, mockDescription);
-
+      
       // Assert
       expect(result).toHaveProperty('feasibility', 0.8);
       expect(result).toHaveProperty('impact', 0.7);
+      expect(result).toHaveProperty('cost', 0.4);
+      expect(result).toHaveProperty('timeframe', 0.3);
       expect(result).toHaveProperty('risks');
       expect(result.risks).toHaveLength(3);
       expect(result).toHaveProperty('benefits');
@@ -268,12 +270,12 @@ describe('AI Service', () => {
       expect(result).toHaveProperty('recommendations');
       expect(global.fetch).toHaveBeenCalledWith('/api/ai-analysis', expect.anything());
     });
-
+    
     test('should handle API errors gracefully', async () => {
       // Arrange
       const mockTitle = 'Test Proposal';
       const mockDescription = 'Test Description';
-
+      
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
         status: 500
@@ -281,26 +283,25 @@ describe('AI Service', () => {
 
       // Act
       const result = await aiService.generateProposalAnalysis(mockTitle, mockDescription);
-
+      
       // Assert
-      expect(result).toHaveProperty('feasibility');
-      expect(result).toHaveProperty('impact');
+      expect(result).toHaveProperty('feasibility', 0.7);
+      expect(result).toHaveProperty('impact', 0.7);
       expect(result).toHaveProperty('risks');
-      expect(result).toHaveProperty('benefits');
-      // Should return fallback values
+      expect(result.risks).toContain('Implementation challenges');
     });
   });
-
+  
   describe('getLlmFeedback', () => {
     beforeEach(() => {
       (global.fetch as jest.Mock).mockReset();
     });
-
+    
     test('should generate feedback for a proposal', async () => {
       // Arrange
       const mockTitle = 'Community Garden Project';
       const mockDescription = 'Create a community garden in the central district';
-
+      
       const mockResponse = {
         choices: [
           {
@@ -310,26 +311,26 @@ describe('AI Service', () => {
           }
         ]
       };
-
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      
+      (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: jest.fn().mockResolvedValue(mockResponse)
       });
-
+      
       // Act
       const result = await aiService.getLlmFeedback(mockTitle, mockDescription);
-
+      
       // Assert
       expect(result).toContain('strong community benefits');
       expect(result).toContain('funding sources');
       expect(global.fetch).toHaveBeenCalledWith('/api/llm-feedback', expect.anything());
     });
-
+    
     test('should handle API errors gracefully', async () => {
       // Arrange
       const mockTitle = 'Test Proposal';
       const mockDescription = 'Test Description';
-
+      
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
         status: 500

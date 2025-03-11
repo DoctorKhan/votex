@@ -1,3 +1,6 @@
+// Import jest-dom for custom matchers like toBeInTheDocument
+import '@testing-library/jest-dom';
+
 // Mock localStorage
 Object.defineProperty(window, 'localStorage', {
   value: {
@@ -79,4 +82,13 @@ jest.mock('./src/lib/db', () => ({
   clearStore: jest.fn().mockResolvedValue(undefined),
   getItemsByIndex: jest.fn().mockResolvedValue([]),
   getUserId: jest.fn().mockReturnValue('mock-user-id'),
+  useQuery: jest.fn(),
+  transact: jest.fn(),
+  tx: {
+    logs: {
+      'mock-log-id': {
+        update: jest.fn()
+      }
+    }
+  }
 }));

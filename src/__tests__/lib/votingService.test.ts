@@ -81,9 +81,9 @@ describe('Voting Service', () => {
       const mockProposalId = 'proposal-123';
       const mockUserId = 'user-456';
       
-      // Mock that the user has already voted
+      // Mock that the user has already voted for any proposal
       const mockVotes = [
-        { 
+        {
           id: 'vote-existing',
           userId: mockUserId,
           proposalId: 'proposal-999', // Voted for a different proposal

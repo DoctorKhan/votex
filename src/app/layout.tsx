@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "../styles/global.css";
 import "../styles/proposal.css";
+import "../styles/ui-complexity.css";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import IndexedDBProvider from "../components/IndexedDBProvider";

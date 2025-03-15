@@ -1,0 +1,105 @@
+/* UI Complexity Styles */
+
+/* Simple Mode - Hide advanced features */
+.ui-simple .advanced-feature {
+  display: none !important;
+}
+
+.ui-simple .intermediate-feature {
+  display: none !important;
+}
+
+/* Intermediate Mode - Hide only advanced features */
+.ui-intermediate .advanced-feature {
+  display: none !important;
+}
+
+/* Advanced Mode - Show all features */
+.ui-advanced .advanced-feature,
+.ui-advanced .intermediate-feature {
+  display: block;
+}
+
+/* For flex containers */
+.ui-advanced .advanced-feature.flex,
+.ui-advanced .intermediate-feature.flex,
+.ui-intermediate .intermediate-feature.flex {
+  display: flex !important;
+}
+
+/* For grid containers */
+.ui-advanced .advanced-feature.grid,
+.ui-advanced .intermediate-feature.grid,
+.ui-intermediate .intermediate-feature.grid {
+  display: grid !important;
+}
+
+/* For inline elements */
+.ui-advanced .advanced-feature.inline,
+.ui-advanced .intermediate-feature.inline,
+.ui-intermediate .intermediate-feature.inline {
+  display: inline !important;
+}
+
+/* For inline-block elements */
+.ui-advanced .advanced-feature.inline-block,
+.ui-advanced .intermediate-feature.inline-block,
+.ui-intermediate .intermediate-feature.inline-block {
+  display: inline-block !important;
+}
+
+/* Simplified UI for simple mode */
+.ui-simple .simplify-ui {
+  padding: 0.5rem !important;
+  margin: 0.5rem !important;
+  border-radius: 0.25rem !important;
+}
+
+/* Reduced options in dropdowns and menus for simple mode */
+.ui-simple .full-options {
+  display: none !important;
+}
+
+.ui-simple .simple-options {
+  display: block !important;
+}
+
+.ui-intermediate .full-options,
+.ui-advanced .full-options {
+  display: block !important;
+}
+
+.ui-intermediate .simple-options,
+.ui-advanced .simple-options {
+  display: none !important;
+}
+
+/* Tooltips and help text */
+.ui-simple .help-text-advanced,
+.ui-intermediate .help-text-advanced {
+  display: none !important;
+}
+
+.ui-advanced .help-text-advanced {
+  display: inline !important;
+}
+
+/* Simplified forms for simple mode */
+.ui-simple .form-advanced-options {
+  display: none !important;
+}
+
+.ui-simple .form-field-label {
+  font-size: 1rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.ui-simple .form-field-input {
+  padding: 0.5rem !important;
+  font-size: 1rem !important;
+}
+
+/* Transition effects for smooth mode changes */
+.mode-transition {
+  transition: all 0.3s ease-in-out;
+}

@@ -266,10 +266,30 @@ describe('Logging Service', () => {
     test('should handle database errors gracefully', async () => {
       // Arrange
       // Mock the database to throw an error
-      (db.getAllItems as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (db.getAllItems as jest.Mock).mockRejectedValueOnce(new Error('Database error'));
       
-      // Act & Assert
-      await expect(getActionLog()).rejects.toThrow('Failed to retrieve action log');
+      // Spy on console.error
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      
+      try {
+        // Act
+        await getActionLog();
+        // If we get here, the test should fail
+        fail('getActionLog should have thrown an error');
+      } catch (error) {
+        // Assert
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('Failed to retrieve action log');
+        
+        // Verify that the error was logged
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Error retrieving action log:',
+          expect.any(Error)
+        );
+      } finally {
+        // Clean up
+        consoleErrorSpy.mockRestore();
+      }
     });
   });
 });

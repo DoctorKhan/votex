@@ -25,6 +25,31 @@ export class VotingService {
   }
 
   /**
+   * Generate a shareable vote link for a proposal
+   * @param proposalId The ID of the proposal to vote for
+   * @returns A shareable link that can be used to vote for the proposal
+   */
+  generateShareLink(proposalId: string): string {
+    // Create a base URL - this should be the domain of your application
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    
+    // Generate the share link with the proposal ID
+    return `${baseUrl}/vote?proposalId=${proposalId}`;
+  }
+
+  /**
+   * Handle a vote from a share link
+   * @param proposalId The ID of the proposal to vote for
+   * @param userId The ID of the user voting
+   * @returns Promise that resolves with the vote result
+   */
+  async handleShareLinkVote(proposalId: string, userId: string): Promise<{ success: boolean; voteId: string | null }> {
+    // This is essentially the same as voteForProposal, but we might want to add
+    // additional tracking or validation specific to shared links in the future
+    return this.voteForProposal(proposalId, userId);
+  }
+
+  /**
    * Vote for a proposal
    * @param proposalId The ID of the proposal to vote for
    * @param userId The ID of the user voting

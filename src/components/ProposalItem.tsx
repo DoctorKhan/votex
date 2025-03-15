@@ -63,6 +63,7 @@ type ProposalItemProps = {
   onRequestLlmFeedback: (id: string) => void;
   onAddRevision: (id: string, revision: string) => void;
   hasVoted: boolean;
+  onShare?: (id: string) => void; // Optional callback for share action
 };
 
 export default function ProposalItem({
@@ -70,12 +71,14 @@ export default function ProposalItem({
   onVote,
   onRequestLlmFeedback,
   onAddRevision,
-  hasVoted
+  hasVoted,
+  onShare
 }: ProposalItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [newRevision, setNewRevision] = useState('');
   const [isAddingRevision, setIsAddingRevision] = useState(false);
   const [showRevisions, setShowRevisions] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   
   // Define a type for our revision history items
   type RevisionHistoryItem = {
@@ -304,6 +307,44 @@ export default function ProposalItem({
           </svg>
           <span className={`relative ${isExpanded ? 'text-base' : 'text-sm'}`}>
             {hasVoted ? 'Voted' : 'Vote'}
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white/30 animate-pulse"></span>
+          </span>
+        </button>
+        
+        {/* Share Button */}
+        <button
+          onClick={() => {
+            // Generate the share link
+            const baseUrl = window.location.origin;
+            const shareLink = `${baseUrl}/vote?proposalId=${proposal.id}`;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(shareLink)
+              .then(() => {
+                setLinkCopied(true);
+                // Reset the copied state after 2 seconds
+                setTimeout(() => setLinkCopied(false), 2000);
+              })
+              .catch(err => {
+                console.error('Failed to copy link: ', err);
+              });
+            
+            // Call the onShare callback if provided
+            if (onShare) {
+              onShare(proposal.id);
+            }
+          }}
+          className={`rounded-lg bg-accent hover:bg-accent-hover text-white transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 flex items-center trippy-hover ${
+            isExpanded ? 'py-2 px-4' : 'py-1 px-2'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className={`${isExpanded ? 'w-4 h-4 mr-1.5' : 'w-3.5 h-3.5 mr-1'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+            <polyline points="16 6 12 2 8 6"></polyline>
+            <line x1="12" y1="2" x2="12" y2="15"></line>
+          </svg>
+          <span className={`relative ${isExpanded ? 'text-base' : 'text-sm'}`}>
+            {linkCopied ? 'Copied!' : 'Share'}
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white/30 animate-pulse"></span>
           </span>
         </button>

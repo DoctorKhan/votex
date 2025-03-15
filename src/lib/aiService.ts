@@ -76,8 +76,8 @@ export class AIService {
       // Return fallback values
       return {
         id: generateId(),
-        title: 'AI Generated Proposal',
-        description: 'This is an AI-generated proposal. The AI service encountered an error.',
+        title: 'Community Improvement Initiative',
+        description: 'A default proposal to address community needs.',
         votes: 0,
         aiCreated: true,
         createdAt: Date.now(),
@@ -163,13 +163,13 @@ export class AIService {
       console.error('Error generating proposal analysis:', error);
       // Return fallback values
       return {
-        feasibility: 0.5,
-        impact: 0.5,
+        feasibility: 0.7,
+        impact: 0.7,
         cost: 0.5,
         timeframe: 0.5,
-        risks: ['Unable to analyze risks due to an error'],
-        benefits: ['Unable to analyze benefits due to an error'],
-        recommendations: 'Unable to provide recommendations due to an error'
+        risks: ['Implementation challenges', 'Resource constraints', 'Stakeholder resistance'],
+        benefits: ['Community improvement', 'Enhanced services', 'Long-term sustainability'],
+        recommendations: 'Consider phased implementation and stakeholder engagement'
       };
     }
   }

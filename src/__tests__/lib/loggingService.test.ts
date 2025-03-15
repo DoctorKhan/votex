@@ -1,5 +1,4 @@
 import { logAction, verifyLogIntegrity, getActionLog } from '../../lib/loggingService';
-import { db } from '../../lib/db';
 import crypto from 'crypto';
 
 // Mock crypto module
@@ -10,22 +9,17 @@ jest.mock('crypto', () => ({
   })
 }));
 
-// Mock db module
-jest.mock('../../lib/db', () => ({
-  useQuery: jest.fn().mockReturnValue({
-    data: { logs: {} },
-    error: null,
-    isLoading: false
-  }),
-  transact: jest.fn(),
-  tx: {
-    logs: {
-      'mock-log-id': {
-        update: jest.fn()
-      }
-    }
-  }
-}));
+// Mock db module functions
+jest.mock('../../lib/db', () => {
+  return {
+    generateId: jest.fn().mockReturnValue('mock-log-id'),
+    getAllItems: jest.fn().mockResolvedValue([]),
+    addOrUpdateItem: jest.fn().mockResolvedValue(undefined)
+  };
+});
+
+// Import the mocked module
+import * as db from '../../lib/db';
 
 jest.mock('@instantdb/react', () => ({
   id: jest.fn().mockReturnValue('mock-log-id')
@@ -46,14 +40,8 @@ describe('Logging Service', () => {
         timestamp: Date.now()
       };
       
-      // Mock the database query to return no previous logs
-      (db.useQuery as jest.Mock).mockReturnValue({
-        data: { logs: {} },
-        error: null,
-        isLoading: false
-      });
-      
-      (db.transact as jest.Mock).mockResolvedValue({});
+      // Mock the database to return no previous logs
+      (db.getAllItems as jest.Mock).mockResolvedValue([]);
       
       // Act
       const result = await logAction(mockAction);
@@ -64,7 +52,7 @@ describe('Logging Service', () => {
       expect(result.logEntry).toHaveProperty('hash');
       expect(result.logEntry).toHaveProperty('previousHash', null);
       expect(result.logEntry).toHaveProperty('action', mockAction);
-      expect(db.transact).toHaveBeenCalled();
+      expect(db.addOrUpdateItem).toHaveBeenCalled();
     });
 
     test('should include previous hash when logs exist', async () => {
@@ -78,21 +66,13 @@ describe('Logging Service', () => {
       
       const previousHash = 'previous-hash-123';
       
-      // Mock the database query to return a previous log
-      (db.useQuery as jest.Mock).mockReturnValue({
-        data: {
-          logs: {
-            'log-1': {
-              hash: previousHash,
-              timestamp: Date.now() - 1000,
-            }
-          }
-        },
-        error: null,
-        isLoading: false
-      });
-      
-      (db.transact as jest.Mock).mockResolvedValue({});
+      // Mock the database to return a previous log
+      (db.getAllItems as jest.Mock).mockResolvedValue([
+        {
+          hash: previousHash,
+          timestamp: Date.now() - 1000,
+        }
+      ]);
       
       // Act
       const result = await logAction(mockAction);
@@ -100,7 +80,7 @@ describe('Logging Service', () => {
       // Assert
       expect(result).toHaveProperty('success', true);
       expect(result.logEntry).toHaveProperty('previousHash', previousHash);
-      expect(db.transact).toHaveBeenCalled();
+      expect(db.addOrUpdateItem).toHaveBeenCalled();
     });
 
     test('should handle database errors gracefully', async () => {
@@ -112,12 +92,8 @@ describe('Logging Service', () => {
         timestamp: Date.now()
       };
       
-      // Mock the database query to return an error
-      (db.useQuery as jest.Mock).mockReturnValue({
-        data: null,
-        error: new Error('Database error'),
-        isLoading: false
-      });
+      // Mock the database to throw an error
+      (db.getAllItems as jest.Mock).mockRejectedValue(new Error('Database error'));
       
       // Act
       const result = await logAction(mockAction);
@@ -244,27 +220,25 @@ describe('Logging Service', () => {
   describe('getActionLog', () => {
     test('should retrieve all log entries', async () => {
       // Arrange
-      const mockLogs = {
-        'log-1': {
+      const mockLogs = [
+        {
+          id: 'log-1',
           action: { type: 'INIT', timestamp: Date.now() - 2000 },
           timestamp: Date.now() - 2000,
           hash: 'hash1',
           previousHash: null
         },
-        'log-2': {
+        {
+          id: 'log-2',
           action: { type: 'VOTE', userId: 'user-1', proposalId: 'proposal-1', timestamp: Date.now() - 1000 },
           timestamp: Date.now() - 1000,
           hash: 'hash2',
           previousHash: 'hash1'
         }
-      };
+      ];
       
-      // Mock the database query to return logs
-      (db.useQuery as jest.Mock).mockReturnValue({
-        data: { logs: mockLogs },
-        error: null,
-        isLoading: false
-      });
+      // Mock the database to return logs
+      (db.getAllItems as jest.Mock).mockResolvedValue(mockLogs);
       
       // Act
       const result = await getActionLog();
@@ -279,12 +253,8 @@ describe('Logging Service', () => {
 
     test('should return empty array when no logs exist', async () => {
       // Arrange
-      // Mock the database query to return no logs
-      (db.useQuery as jest.Mock).mockReturnValue({
-        data: { logs: {} },
-        error: null,
-        isLoading: false
-      });
+      // Mock the database to return no logs
+      (db.getAllItems as jest.Mock).mockResolvedValue([]);
       
       // Act
       const result = await getActionLog();
@@ -295,12 +265,8 @@ describe('Logging Service', () => {
 
     test('should handle database errors gracefully', async () => {
       // Arrange
-      // Mock the database query to return an error
-      (db.useQuery as jest.Mock).mockReturnValue({
-        data: null,
-        error: new Error('Database error'),
-        isLoading: false
-      });
+      // Mock the database to throw an error
+      (db.getAllItems as jest.Mock).mockRejectedValue(new Error('Database error'));
       
       // Act & Assert
       await expect(getActionLog()).rejects.toThrow('Failed to retrieve action log');

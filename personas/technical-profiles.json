@@ -140,6 +140,54 @@
         "This aligns with best practices in fiscal management",
         "The potential financial impact needs to be carefully assessed"
       ]
+    },
+    {
+      "id": "jamie-dev",
+      "name": "Jamie Developer",
+      "activityPatterns": {
+        "high": {
+          "proposalFrequency": 4,
+          "voteFrequency": 5,
+          "commentFrequency": 6
+        },
+        "medium": {
+          "proposalFrequency": 2,
+          "voteFrequency": 3,
+          "commentFrequency": 4
+        },
+        "low": {
+          "proposalFrequency": 1,
+          "voteFrequency": 2,
+          "commentFrequency": 2
+        }
+      },
+      "topicsOfInterest": [
+        "Code quality",
+        "System architecture",
+        "Performance optimization",
+        "User experience",
+        "Automated testing",
+        "Technical debt reduction"
+      ],
+      "sampleProposals": [
+        "Implementing a comprehensive test-driven development framework",
+        "Creating an automated monitoring system for platform improvements",
+        "Refactoring the codebase to improve maintainability",
+        "Enhancing system performance through optimization",
+        "Establishing a continuous integration/continuous deployment pipeline"
+      ],
+      "sampleVotes": [
+        "Approve: Strong support for measures that improve code quality and maintainability",
+        "Reject: Oppose measures that could introduce technical debt or instability",
+        "Abstain: When more technical analysis is needed"
+      ],
+      "sampleComments": [
+        "This would significantly improve system performance",
+        "The implementation approach needs to be more clearly defined",
+        "I support this but suggest adding more automated tests",
+        "This aligns with best practices in software engineering",
+        "The potential technical challenges need to be thoroughly assessed"
+      ]
     }
   ]
 }

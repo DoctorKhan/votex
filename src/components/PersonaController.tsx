@@ -73,7 +73,8 @@ interface PersonaModuleType {
 const mockPersonas = [
   { id: 'alex-chen', name: 'Dr. Alex Chen', displayName: 'AlexC' },
   { id: 'sophia-rodriguez', name: 'Sophia Rodriguez', displayName: 'Sophia_R' },
-  { id: 'thomas-williams', name: 'Thomas Williams', displayName: 'ThomasW' }
+  { id: 'thomas-williams', name: 'Thomas Williams', displayName: 'ThomasW' },
+  { id: 'jamie-dev', name: 'Jamie Developer', displayName: 'JamieD' }
 ];
 
 const mockModule: PersonaModuleType = {

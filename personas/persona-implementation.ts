@@ -5,7 +5,7 @@
  */
 
 // Define persona ID type
-export type PersonaId = 'alex-chen' | 'sophia-rodriguez' | 'thomas-williams';
+export type PersonaId = 'alex-chen' | 'sophia-rodriguez' | 'thomas-williams' | 'jamie-dev';
 
 // Context interfaces
 export interface ProposalContext {
@@ -59,7 +59,8 @@ export function getAllPersonas(): Array<{id: PersonaId; name: string; displayNam
   return [
     { id: 'alex-chen', name: 'Dr. Alex Chen', displayName: 'AlexC' },
     { id: 'sophia-rodriguez', name: 'Sophia Rodriguez', displayName: 'Sophia_R' },
-    { id: 'thomas-williams', name: 'Thomas Williams', displayName: 'ThomasW' }
+    { id: 'thomas-williams', name: 'Thomas Williams', displayName: 'ThomasW' },
+    { id: 'jamie-dev', name: 'Jamie Developer', displayName: 'JamieD' }
   ];
 }
 
@@ -199,6 +200,15 @@ function getPersonaDetails(personaId: PersonaId): {
         positiveTerms: ['accountability', 'transparency', 'efficiency', 'sustainability'],
         negativeTerms: ['wasteful', 'costly', 'risky', 'untested', 'hasty'],
         communicationStyle: 'pragmatic'
+      };
+    case 'jamie-dev':
+      return {
+        name: 'Jamie Developer',
+        expertise: 'software engineering',
+        focusAreas: ['code quality', 'user experience', 'system architecture', 'performance optimization'],
+        positiveTerms: ['refactor', 'optimize', 'improve', 'automate', 'test-driven', 'scalable', 'maintainable'],
+        negativeTerms: ['technical debt', 'inefficient', 'unmaintainable', 'insecure', 'unstable'],
+        communicationStyle: 'technical'
       };
     default:
       throw new Error(`Unknown persona ID: ${personaId}`);

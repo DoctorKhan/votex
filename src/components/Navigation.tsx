@@ -3,12 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import ThemeToggle from './ThemeToggle';
-import AccessibilitySettings from './AccessibilitySettings';
+import Settings from './Settings';
 
 export default function Navigation() {
   const pathname = usePathname();
-  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Simplified navigation items
@@ -128,98 +126,8 @@ export default function Navigation() {
 
         {/* Right-side controls */}
         <div className="flex items-center gap-1">
-          {/* Admin dropdown - using a more accessible click pattern */}
-          <div className="relative">
-            <button
-              onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-              className="p-2 rounded-md text-foreground/70 hover:text-foreground hover:bg-background transition-colors"
-              aria-label="Admin Menu"
-              aria-expanded={adminMenuOpen}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-5 h-5"
-              >
-                <path d="M12 4.5c-1.93 0-3.5 1.57-3.5 3.5 0 1.74 1.27 3.18 2.94 3.45.34.05.6.33.6.68v.32c0 .35-.27.63-.62.68-1.36.18-2.42.82-2.42 1.87v2h6v-2c0-1.05-1.06-1.69-2.42-1.87-.35-.05-.62-.33-.62-.68v-.32c0-.35.27-.63.61-.68 1.67-.27 2.94-1.71 2.94-3.45 0-1.93-1.57-3.5-3.5-3.5z"></path>
-                <path d="M20 16v4a2 2 0 0 1-2 2h-2v-6h2a2 2 0 0 1 2 0Z"></path>
-                <path d="M4 16a2 2 0 0 1 2 0h2v6H6a2 2 0 0 1-2-2v-4Z"></path>
-              </svg>
-            </button>
-            
-            {/* Admin Menu - Only visible when clicked */}
-            {adminMenuOpen && (
-              <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg overflow-hidden z-20 border border-gray-200 dark:border-gray-700">
-                <div className="py-1">
-                  <Link
-                    key="/admin/personas"
-                    href="/admin/personas"
-                    className={`block px-4 py-2 text-sm ${
-                      pathname?.startsWith('/admin/personas')
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
-                    onClick={() => setAdminMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="w-4 h-4"
-                      >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                      </svg>
-                      <span>Persona Management</span>
-                    </div>
-                  </Link>
-                  
-                  <Link
-                    href="/admin/persona-activities"
-                    className={`block px-4 py-2 text-sm ${
-                      pathname?.startsWith('/admin/persona-activities')
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
-                    onClick={() => setAdminMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="w-4 h-4"
-                      >
-                        <path d="M12 20h9"></path>
-                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-                        <path d="m15 5 3 3"></path>
-                      </svg>
-                      <span>Persona Activities</span>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <AccessibilitySettings />
-          <ThemeToggle />
+          {/* Settings Component */}
+          <Settings />
         </div>
       </nav>
     </div>

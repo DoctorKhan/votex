@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Run script for Votex project
+# Usage: ./run [command]
+
+# Set script to exit on error
+set -e
+
+# Function to display usage information
+show_usage() {
+  echo "Usage: ./run [command]"
+  echo ""
+  echo "Available commands:"
+  echo "  test             Run all tests"
+  echo "  test:watch       Run tests in watch mode"
+  echo "  test:coverage    Run tests with coverage"
+  echo "  test:file [path] Run tests for a specific file"
+  echo "  dev              Start the development server"
+  echo "  build            Build the project"
+  echo "  start            Start the production server"
+  echo "  lint             Run linting"
+  echo "  help             Show this help message"
+  echo ""
+}
+
+# Check if a command was provided
+if [ $# -eq 0 ]; then
+  show_usage
+  exit 1
+fi
+
+# Process commands
+case "$1" in
+  test)
+    echo "Running tests..."
+    npm run test
+    ;;
+  test:watch)
+    echo "Running tests in watch mode..."
+    npm run test -- --watch
+    ;;
+  test:coverage)
+    echo "Running tests with coverage..."
+    npm run test -- --coverage
+    ;;
+  test:file)
+    if [ -z "$2" ]; then
+      echo "Error: Please provide a file path"
+      echo "Usage: ./run test:file [path]"
+      exit 1
+    fi
+    echo "Running tests for $2..."
+    npm run test -- "$2"
+    ;;
+  dev)
+    echo "Starting development server..."
+    npm run dev
+    ;;
+  build)
+    echo "Building project..."
+    npm run build
+    ;;
+  start)
+    echo "Starting production server..."
+    npm run start
+    ;;
+  lint)
+    echo "Running linting..."
+    npm run lint
+    ;;
+  help)
+    show_usage
+    ;;
+  *)
+    echo "Error: Unknown command '$1'"
+    show_usage
+    exit 1
+    ;;
+esac

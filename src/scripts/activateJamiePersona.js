@@ -11,7 +11,7 @@ async function activateJamiePersona() {
     console.log('Activating Jamie Developer persona...');
     
     // First, activate Jamie in the persona controller
-    const activateResponse = await fetch('/api/personas/activate', {
+    const activateResponse = await fetch('http://localhost:3001/api/personas/activate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ async function activateJamiePersona() {
     console.log('Jamie Developer persona activated successfully.');
     
     // Then, trigger the persona monitor integration
-    const monitorResponse = await fetch('/api/persona-monitor', {
+    const monitorResponse = await fetch('http://localhost:3001/api/persona-monitor', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -48,7 +48,7 @@ async function activateJamiePersona() {
     console.log('Persona monitor integration triggered successfully:', result);
     
     // Schedule periodic runs
-    const scheduleResponse = await fetch('/api/persona-monitor', {
+    const scheduleResponse = await fetch('http://localhost:3001/api/persona-monitor', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

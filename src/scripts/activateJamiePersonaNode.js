@@ -5,10 +5,10 @@
  * It can be run directly with Node.js without requiring the server to be running.
  */
 
-import { schedulePersonaActivity } from '../../personas/persona-implementation.js';
-import { PersonaMonitorIntegration } from '../lib/personaMonitorIntegration.js';
-import { logAction } from '../lib/loggingService.js';
-import { initDB } from '../lib/db.js';
+import { schedulePersonaActivity } from '../../personas/persona-implementation';
+import { PersonaMonitorIntegration } from '../lib/personaMonitorIntegration';
+import { logAction } from '../lib/loggingService';
+import { initDB } from '../lib/db';
 
 // Function to activate Jamie and run the persona monitor integration
 async function activateJamiePersona() {

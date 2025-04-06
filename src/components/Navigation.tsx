@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import Settings from './Settings';
+import SettingsDropdown from './SettingsDropdown'; // Updated import
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -127,7 +127,7 @@ export default function Navigation() {
         {/* Right-side controls */}
         <div className="flex items-center gap-1">
           {/* Settings Component */}
-          <Settings />
+          <SettingsDropdown /> {/* Updated component usage */}
         </div>
       </nav>
     </div>

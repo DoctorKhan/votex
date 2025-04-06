@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Proposal, Analysis, Revision } from './ProposalItem';
-import { initDB } from '../lib/db';
-import { ProposalService } from '../lib/proposalService';
+// Removed unused imports for initDB and ProposalService
 
 // Helper function to convert timeframe value to a human-readable label
 const getTimeframeLabel = (timeframe: number): string => {
@@ -48,7 +47,7 @@ export default function ProposalAnalysis({
   // Automatically expand the analysis section if analysis is loaded
   const [isExpanded, setIsExpanded] = useState(false);
   const [isGeneratingRevision, setIsGeneratingRevision] = useState(false);
-  const [proposalService, setProposalService] = useState<ProposalService | null>(null);
+  // Removed proposalService state as it's no longer used directly here
 
   // Request analysis from the API
   const handleRequestAnalysis = useCallback(async () => {
@@ -81,66 +80,28 @@ export default function ProposalAnalysis({
         onAnalysisGenerated(analysisResult);
       }
       
-      // Save the analysis to the database
-      if (proposalService) {
-        try {
-          const fullProposal = await proposalService.getProposal(proposal.id);
-          if (fullProposal) {
-            // Make sure revisions array exists
-            if (fullProposal.revisions) {
-              // Find the current revision and update its analysis
-              const currentRevisionIndex = fullProposal.revisions.findIndex(
-                rev => currentRevision && rev.id === currentRevision.id
-              );
-              
-              if (currentRevisionIndex >= 0) {
-                // Use type assertion to work around the TypeScript error
-                // since the Proposal type in the database service might not be updated yet
-                (fullProposal.revisions[currentRevisionIndex] as Revision).analysis = analysisResult;
-                await proposalService.updateProposal(proposal.id, fullProposal);
-                console.log('Analysis saved successfully for revision:', currentRevision?.id);
-              } else {
-                console.error('Could not find revision in proposal');
-              }
-            } else {
-              console.error('Proposal has no revisions array');
-            }
-          } else {
-            console.error('Could not find proposal with ID:', proposal.id);
-          }
-        } catch (saveErr) {
-          console.error('Error saving analysis to database:', saveErr);
-          // We still show the analysis even if saving fails
-        }
-      } else {
-        console.error('ProposalService not initialized');
-      }
+      // Removed the database saving logic from here.
+      // The parent component is now responsible for saving the analysis
+      // via the onAnalysisGenerated callback.
+      console.log('Analysis generated for revision:', currentRevision?.id);
     } catch (err) {
       console.error('Error generating analysis:', err);
-      setError('Failed to generate analysis. Please try again later.');
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        // Network error or server unreachable
+        setError('Network Error: Could not reach the analysis API. Please ensure the server is running and check your network connection.');
+      } else if (err instanceof Error && err.message === 'Failed to get analysis') {
+        // API returned a non-OK status (e.g., 4xx, 5xx)
+        setError('Analysis API returned an error. Please check the server logs for more details.');
+      } else {
+        // Other unexpected errors
+        setError('An unexpected error occurred while requesting analysis. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [proposal, currentRevision, onAnalysisGenerated, proposalService]);
+  }, [proposal, currentRevision, onAnalysisGenerated]); // Removed proposalService dependency
   
-  // Initialize the database
-  useEffect(() => {
-    const init = async () => {
-      try {
-        await initDB();
-        
-        // Create a dummy IDBDatabase since we don't have direct access to the db instance
-        const dummyDb = {} as IDBDatabase;
-        const service = new ProposalService(dummyDb);
-        setProposalService(service);
-      } catch (err) {
-        console.error('Error initializing:', err);
-      }
-    };
-    
-    init();
-  }, []);
-  
+  // Removed database initialization useEffect as proposalService is no longer used directly here
   // Auto-generate analysis for the current revision if it doesn't have one
   useEffect(() => {
     // If we have a current revision but no analysis, automatically request one

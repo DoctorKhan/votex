@@ -11,7 +11,7 @@ jest.mock('../../lib/db', () => ({
 
 describe('Proposal Revisions', () => {
   let proposalService: ProposalService;
-  
+  // Removed top-level spy declaration
   beforeEach(() => {
     // Create a mock IDBDatabase
     const mockDb = {} as IDBDatabase;
@@ -33,6 +33,18 @@ describe('Proposal Revisions', () => {
   });
   
   describe('addRevision', () => {
+    // Mock getProposal specifically for these tests
+    let getProposalSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      // Spy on the getProposal method of the specific instance
+      getProposalSpy = jest.spyOn(proposalService, 'getProposal');
+    });
+
+    afterEach(() => {
+      // Restore the original implementation after each test
+      getProposalSpy.mockRestore();
+    });
     test('should add a revision to an existing proposal', async () => {
       // Arrange
       const mockProposalId = 'proposal-123';
@@ -46,7 +58,8 @@ describe('Proposal Revisions', () => {
         createdAt: Date.now()
       };
       
-      (getAllItems as jest.Mock).mockResolvedValueOnce([mockProposal]);
+      // Mock getProposal to return the mock proposal
+      getProposalSpy.mockResolvedValue(mockProposal);
       (generateId as jest.Mock).mockReturnValue(mockRevisionId);
       
       // Act
@@ -84,7 +97,8 @@ describe('Proposal Revisions', () => {
         createdAt: Date.now()
       };
       
-      (getAllItems as jest.Mock).mockResolvedValueOnce([mockProposal]);
+      // Mock getProposal to return the mock proposal
+      getProposalSpy.mockResolvedValue(mockProposal);
       (generateId as jest.Mock).mockReturnValue(mockRevisionId);
       
       // Act
@@ -114,7 +128,8 @@ describe('Proposal Revisions', () => {
       const mockProposalId = 'non-existent-id';
       const mockRevisionText = 'This is a revision';
       
-      (getAllItems as jest.Mock).mockResolvedValueOnce([]); // No proposals found
+      // Mock getProposal to return null (proposal not found)
+      getProposalSpy.mockResolvedValue(null);
       
       // Act & Assert
       await expect(proposalService.addRevision(mockProposalId, mockRevisionText))

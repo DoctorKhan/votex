@@ -14,6 +14,7 @@ jest.mock('../../lib/loggingService', () => ({
 }));
 
 describe('Intelligent Service', () => {
+  let consoleErrorSpy: jest.SpyInstance; // Declare spy at the top level
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -120,7 +121,8 @@ describe('Intelligent Service', () => {
       
       (fetch as jest.Mock).mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue(mockResponse)
+        // Use explicit Promise resolve for the json method
+        json: () => Promise.resolve(mockResponse)
       });
       
       // Act
@@ -214,6 +216,7 @@ describe('Intelligent Service', () => {
     });
 
     test('should handle API errors gracefully', async () => {
+      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       // Arrange
       const mockTitle = 'Test Proposal';
       const mockDescription = 'Test Description';
@@ -241,6 +244,7 @@ describe('Intelligent Service', () => {
       expect(result).toHaveProperty('impact');
       // Should return fallback values
       expect(result.feasibility).toBe(0.7);
+      consoleErrorSpy.mockRestore();
     });
 
     test('should extract JSON from response text with surrounding content', async () => {
@@ -327,9 +331,11 @@ describe('Intelligent Service', () => {
         
       await expect(getSmartFeedback(mockTitle, emptyDescription))
         .rejects.toThrow('Title and description are required');
+      // Removed misplaced mockRestore
     });
 
     test('should handle API errors gracefully', async () => {
+      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       // Arrange
       const mockTitle = 'Test Proposal';
       const mockDescription = 'Test Description';
@@ -342,6 +348,7 @@ describe('Intelligent Service', () => {
       // Act & Assert
       await expect(getSmartFeedback(mockTitle, mockDescription))
         .rejects.toThrow('Failed to get intelligent feedback');
+      consoleErrorSpy.mockRestore(); // Restore the spy here
     });
   });
 });

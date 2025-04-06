@@ -84,6 +84,8 @@ describe('Logging Service', () => {
     });
 
     test('should handle database errors gracefully', async () => {
+      // Suppress console.error for this specific test
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       // Arrange
       const mockAction = {
         type: 'VOTE',
@@ -101,6 +103,8 @@ describe('Logging Service', () => {
       // Assert
       expect(result).toHaveProperty('success', false);
       expect(result).toHaveProperty('error', 'Failed to log action');
+      // Restore console.error
+      consoleErrorSpy.mockRestore();
     });
   });
 

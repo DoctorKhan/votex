@@ -56,7 +56,7 @@ describe('AI Service', () => {
         title: 'Test Proposal',
         description: 'This is a test proposal',
         votes: 0,
-        createdAt: Date.now().toString()
+        createdAt: Date.now() // Use number, not string
       };
       
       (getAllItems as jest.Mock).mockResolvedValueOnce([mockProposal]);
@@ -79,7 +79,7 @@ describe('AI Service', () => {
         title: 'Updated Proposal',
         description: 'This is an updated proposal',
         votes: 0,
-        createdAt: Date.now().toString()
+        createdAt: Date.now() // Use number, not string
       };
       
       // Act
@@ -126,7 +126,8 @@ describe('AI Service', () => {
       });
       
       // Act
-      const result = await aiService.generateAiProposal();
+      // Pass empty array for existing proposals argument
+      const result = await aiService.generateAiProposal([]);
 
       // Assert
       expect(result).toHaveProperty('title', 'Community Garden Expansion');
@@ -144,7 +145,8 @@ describe('AI Service', () => {
       });
 
       // Act
-      const result = await aiService.generateAiProposal();
+      // Pass empty array for existing proposals argument
+      const result = await aiService.generateAiProposal([]);
 
       // Assert
       expect(result).toHaveProperty('title', 'Community Improvement Initiative');
@@ -161,9 +163,9 @@ describe('AI Service', () => {
     test('should analyze proposals and vote for the best ones', async () => {
       // Arrange
       const mockProposals: ProposalEntity[] = [
-        { id: 'proposal-1', title: 'Proposal 1', description: 'Description 1', votes: 0, createdAt: Date.now().toString() },
-        { id: 'proposal-2', title: 'Proposal 2', description: 'Description 2', votes: 0, createdAt: Date.now().toString() },
-        { id: 'proposal-3', title: 'Proposal 3', description: 'Description 3', votes: 0, createdAt: Date.now().toString() }
+        { id: 'proposal-1', title: 'Proposal 1', description: 'Description 1', votes: 0, createdAt: Date.now() }, // Use number
+        { id: 'proposal-2', title: 'Proposal 2', description: 'Description 2', votes: 0, createdAt: Date.now() }, // Use number
+        { id: 'proposal-3', title: 'Proposal 3', description: 'Description 3', votes: 0, createdAt: Date.now() }  // Use number
       ];
       
       const mockResponse = {
@@ -178,7 +180,8 @@ describe('AI Service', () => {
       
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue(mockResponse)
+        // Use explicit Promise resolve for the json method
+        json: () => Promise.resolve(mockResponse)
       });
       
       // Act
@@ -206,7 +209,7 @@ describe('AI Service', () => {
     test('should handle API errors gracefully', async () => {
       // Arrange
       const mockProposals: ProposalEntity[] = [
-        { id: 'proposal-1', title: 'Proposal 1', description: 'Description 1', votes: 0, createdAt: Date.now().toString() }
+        { id: 'proposal-1', title: 'Proposal 1', description: 'Description 1', votes: 0, createdAt: Date.now() } // Use number
       ];
       
       (global.fetch as jest.Mock).mockResolvedValueOnce({
